@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<windowclass name="power_item_header" merge="join">
+		<sheetdata>
+			<windowlist name="actionsmini">
+				<anchored>
+					<top offset="2" />
+					<left parent="arcaneward_text_label" anchor="right"/>
+				</anchored>
+			</windowlist>
+
+			<label name="arcaneward_text_label" insertbefore="group">
+				<anchored width="25">
+					<top offset="2" />
+					<left parent="name" anchor="right" offset="0" />
+				</anchored>
+			</label>
+
+			<button_abjuration name="button_abjuration" />
+		</sheetdata>
+	</windowclass>
+	<windowclass name="power_item" merge="join">
+		<script file="campaign/scripts/power_item.lua" />
+	</windowclass>
+
+</root>

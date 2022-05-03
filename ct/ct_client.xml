@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!--
+  Please see the license.html file included with this distribution for
+  attribution and copyright information.
+-->
+
+<root>
+	<windowclass name="combattracker_client" merge="join">
+		<sheetdata>
+			<label_ct_right name="label_arcaneward" insertbefore="label_wounds">
+				<static textres="ct_label_arcaneward" />
+				<tooltip textres="ct_tooltip_arcaneward" />
+			</label_ct_right>
+		</sheetdata>
+		<script file="ct/scripts/combattracker_client.lua" />
+	</windowclass>
+
+	<windowclass name="client_ct_entry" merge="join">
+		<sheetdata>
+			<number_clientct_arcaneward name="arcanewardhp" insertbefore="initresult" />
+			<number_clientct_wounds name="wounds">
+				<anchored>
+					<right offset="-40" />
+				</anchored>
+			</number_clientct_wounds>
+
+			<base_clientct_health name="healthbase">
+				<anchored width="150" />
+			</base_clientct_health>
+		</sheetdata>
+		<script file="ct/scripts/client_ct_entry.lua" />
+
+	</windowclass>
+</root>
