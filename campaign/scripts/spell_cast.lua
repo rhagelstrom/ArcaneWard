@@ -13,6 +13,10 @@ function onInit()
     local node = window.getDatabaseNode()
     nLevel = DB.getValue(node, "level", 0)
     setCastToolTip(nLevel)
+
+    if ArcaneWard.hasSAI() then
+        setAnchor("left", "components_text_label", "right", "relative");
+    end
 end
 
 function setCastToolTip(bRitual)
