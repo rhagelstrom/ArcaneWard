@@ -2,6 +2,8 @@
 <root>
 	<windowclass name="power_item_header" merge="join">
 		<sheetdata>
+			<button_abjuration name="button_abjuration" insertbefore="actionsmini" />
+
 			<windowlist name="actionsmini">
 				<anchored>
 					<top offset="2" />
@@ -15,8 +17,6 @@
 					<left parent="name" anchor="right" offset="0" />
 				</anchored>
 			</label>
-
-			<button_abjuration name="button_abjuration" />
 		</sheetdata>
 	</windowclass>
 	<windowclass name="power_item" merge="join">

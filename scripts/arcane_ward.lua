@@ -69,6 +69,10 @@ function hasCA()
     return extensions["ConstitutionalAmendments"]
 end
 
+function hasSAI()
+	return extensions["Spell Action Info"]
+end
+
 function castAbjuration(nodeActor, nLevel ,nName)
 	local rActor = ActorManager.resolveActor(nodeActor)
 	local nActive = DB.getValue(nodeActor, "arcaneward", 0)
