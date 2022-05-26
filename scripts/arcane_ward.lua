@@ -21,10 +21,6 @@ local rest = nil
 local addNPCtoCT = nil
 local extensions = {}
 
---TODO:
--- NPC Cast spell
-
-
 function onInit()
 	applyDamage = ActionDamage.applyDamage
 	messageDamage = ActionDamage.messageDamage
