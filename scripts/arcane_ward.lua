@@ -36,18 +36,23 @@ function onInit()
 		extensions[name] = index
    end
 
-	OptionsManager.registerOption2("ARCANE_WARD_SPELL_CAST_GAME", false, "option_header_game",
+	OptionsManager.registerOption2("ARCANE_WARD_SPELL_CAST_GAME", false, "option_arcane_ward",
 	"option_spell_cast_game", "option_entry_cycler",
 	{ labels = "option_val_on", values = "on",
 		baselabel = "option_val_off", baseval = "off", default = "off" });
 
-	OptionsManager.registerOption2("ARCANE_WARD_SPELL_CAST", true, "option_header_client",
+	OptionsManager.registerOption2("ARCANE_WARD_SPELL_CAST", true, "option_arcane_ward",
    "option_spell_cast", "option_entry_cycler",
    { labels = "option_val_on", values = "on",
 	   baselabel = "option_val_off", baseval = "off", default = "off" });
 
-	OptionsManager.registerOption2("ARCANE_WARD_SHOW_CT", true, "option_header_client",
+	OptionsManager.registerOption2("ARCANE_WARD_SHOW_CT", true, "option_arcane_ward",
 	"option_show_aw_ct", "option_entry_cycler",
+	{ labels = "option_val_on", values = "on",
+		   baselabel = "option_val_off", baseval = "off", default = "off" });
+
+	OptionsManager.registerOption2("ARCANE_WARD_PACT", true, "option_arcane_ward",
+	"option_pact_aw", "option_entry_cycler",
 	{ labels = "option_val_on", values = "on",
 		   baselabel = "option_val_off", baseval = "off", default = "off" });
 
@@ -63,23 +68,34 @@ end
 function hasCA()
     return extensions["ConstitutionalAmendments"]
 end
+function hasLA()
+    return extensions["5e Legendary Assistant"]
+end
 
 function hasSAI()
 	return extensions["Spell Action Info"]
 end
 
-function castAbjuration(nodeActor, nLevel ,nName)
+function castAbjuration(nodeActor, nLevel ,sName, bCastasPact)
 	local rActor = ActorManager.resolveActor(nodeActor)
 	local nActive = DB.getValue(nodeActor, "arcaneward", 0)
 	local sDBAWHP = getDBString(nodeActor)
 	local nTotal
 	local nAdded
 	local sActivated = ""
+	local sMax = ""
 
 	if nActive == 1 then
 		local nArcaneWardHP = DB.getValue(nodeActor, sDBAWHP, 0)
+		local nMax = DB.getValue(nodeActor, "arcanewardmax", 0)
+
 		nAdded = nLevel * 2
+		if nAdded + nArcaneWardHP > nMax then
+			nAdded = nMax - nArcaneWardHP
+			sMax = " MAX"
+		end
 		nTotal = nArcaneWardHP + nAdded
+
 	else
 		local aParsed = parseArcaneWard(rActor)
 		local sClass
@@ -107,13 +123,18 @@ function castAbjuration(nodeActor, nLevel ,nName)
 		nAdded = nWizLevel * 2  + nBonus
 		nTotal = nAdded
 		DB.setValue(nodeActor, "arcaneward", "number", 1)
+		DB.setValue(nodeActor, "arcanewardmax", "number", nTotal)
 	end
 	DB.setValue(nodeActor, sDBAWHP, "number", nTotal)
 
 	local rMessage = ChatManager.createBaseMessage(rActor, DB.getValue(nodeActor,"name"));
 	-- rMessage.secret
 	rMessage.icon = "ArcaneWard"
-	rMessage.text = rMessage.text .. "Begins [CAST] " .. nName .. " [LVL " .. nLevel .."] [Arcane Ward: " .. tostring(nAdded) .. " ] -> " .. sActivated .. "[to " ..  DB.getValue(nodeActor,"name") .."]"
+	if bCastasPact then
+		rMessage.text = rMessage.text .. "Begins [CAST] " .. sName .. " [PACT LEVEL " .. nLevel .."] [Arcane Ward: " .. tostring(nAdded) .. sMax .. " ] -> " .. sActivated .. "[to " ..  DB.getValue(nodeActor,"name") .."]"
+	else
+		rMessage.text = rMessage.text .. "Begins [CAST] " .. sName .. " [LEVEL " .. nLevel .."] [Arcane Ward: " .. tostring(nAdded) .. sMax .. " ] -> " .. sActivated .. "[to " ..  DB.getValue(nodeActor,"name") .."]"
+	end
 	Comm.deliverChatMessage(rMessage)
 end
 
@@ -140,10 +161,6 @@ function parseArcaneWard(rActor)
 						StringManager.isWord(aWords[i+1], "your") and
 						StringManager.isWord(aWords[i+3], "modifier") then
 							aAWParsed["modifier"] = aWords[i+2]
-					-- elseif StringManager.isWord(aWords[i], "you") and
-					-- StringManager.isWord(aWords[i+1], "cast") and
-					-- StringManager.isWord(aWords[i+2], {"an", "a"} ) then
-					-- 	aAWParsed["spell"] = aWords[i+3]
 					end
 					i = i + 1
 				end
@@ -287,44 +304,231 @@ function customRest(nodeActor, bLong)
 	rest(nodeActor, bLong)
 end
 
-function getUpcastRitual(node)
-	local aRet = {}
-    local rActor = ActorManager.resolveActor(node.getParent().getParent())
-	local sDescription = DB.getValue(node, "description", "")
+function getCurrentCastInfo(node, bNextSlot, aCastInfo)
+	local aRet =
+		{
+			bCastasPact = false,
+			bPactMagic = false,
+			bSpellcasting = false,
+			bAbjuration = false,
+			bRitual = false,
+			bCastasRitual = false,
+			bCastasPactRitual = false,
+			bUpcast = false,
+			bBaseSlotAvailable = true,
+			bNoSpellSlotsAvailable = false,
+			bNoPactSlotsAvailable = false,
+			bHasArcaneWard = false,
+			nLevel = 0,
+			nCastLevel = 0,
+			nPactLevel = 0
+		}
+	local nodeChar = node.getParent().getParent()
+	local aPactSlots
+	local aSpellSlots
+	local aTraits
 
-	aRet.sSchool = DB.getValue(node, "school", "")
-	aRet.nBaseLevel = DB.getValue(node, "level", 0)
-	aRet.bHasArcaneWard = ArcaneWard.hasArcaneWard(rActor)
-
-	if DB.getValue(node, "ritual", 0) == 1 then
-		aRet.bRitual = true
+	-- If passed a castinfo. Done for resetting after cast
+	if aCastInfo ~= nil then
+		aRet = aCastInfo
 	else
-		aRet.bRitual = false
-	end
+		local sDescription = DB.getValue(node, "description", "")
+		aTraits = getMagicTraits(nodeChar)
+		aRet.nLevel  = DB.getValue(node, "level", 0)
+		aRet.nCastLevel = DB.getValue(node, "arcanewardlevel", aRet.nLevel)
+		aRet.bCastasRitual = numberToBool(DB.getValue(node, "arcanewardritual", 0))
+		aRet.bCastasPactRitual = numberToBool(DB.getValue(node, "arcanewardpactritual", 0))
+		aRet.bCastasPact = numberToBool(DB.getValue(node, "arcanewardcastaspact", 0))
 
-	if sDescription:match("At Higher Levels") then
-		aRet.bUpcast =  true
-	else
-		aRet.bUpcast =  false
-	end
+		aRet.bSpellcasting = aTraits.bSpellcasting
+		aRet.bPactMagic = aTraits.bPactMagic
+		aRet.bHasArcaneWard = aTraits.bArcaneWard
 
-	if aRet.bUpcast then
-		aRet.aSpellSlots = getSpellSlots(node.getParent().getParent(), aRet.nBaseLevel)
-		if aRet.aSpellSlots[aRet.nBaseLevel] ~= nil then
-			aRet.bHasSpellSlots = true
-		else
-			aRet.bHasSpellSlots = false
+		-- Don't care if we don't have spellcasting and arcane ward
+		if aRet.bSpellcasting and aRet.bHasArcaneWard and (DB.getValue(node, "school", ""):lower() == "abjuration") then
+			aRet.bAbjuration = true
 		end
-	else
-		local nSlotsMax = DB.getValue(node.getParent().getParent(), "powermeta.spellslots".. tostring(aRet.nBaseLevel) .. ".max", 0)
-    	local nSlotsUsed = DB.getValue(node.getParent().getParent(), "powermeta.spellslots".. tostring(aRet.nBaseLevel) .. ".used", 0)
-		if nSlotsMax <= nSlotsUsed then
-			aRet.bHasSpellSlots = false
+
+		if DB.getValue(node, "ritual", 0) == 1 then
+			aRet.bRitual = true
+		end
+
+		if sDescription:match("At Higher Levels") then
+			aRet.bUpcast =  true
+		end
+	end
+
+	if aRet.bPactMagic then
+		aPactSlots = getPactMagicSlots(nodeChar, aRet.nLevel)
+		aRet.nPactLevel = aPactSlots.nLevel
+		if aPactSlots.nAvailable == 0 then
+			aRet.bNoPactSlotsAvailable = true
+			if aRet.bRitual then
+				aRet.bCastasPactRitual = true
+			end
+		end
+		if not aRet.bSpellcasting then
+			aRet.bCastasPact = true
+		end
+	end
+
+	if aRet.bSpellcasting then
+		aSpellSlots = getSpellSlots(nodeChar, aRet.nLevel)
+		if aSpellSlots[aRet.nLevel] == nil then
+			aRet.bBaseSlotAvailable = false
+			if not aRet.bUpcast  then
+				aRet.bNoSpellSlotsAvailable = true
+			end
+		end
+		if next(aSpellSlots) == nil then
+			aRet.bNoSpellSlotsAvailable = true
+		end
+	end
+
+	-- Switch between spellcasting/pact if no slots
+	if aRet.bSpellcasting and aRet.bPactMagic  then
+		if aRet.bCastasPact and  aRet.bNoPactSlotsAvailable and
+		not aRet.bCastasPactRitual and not aRet.bNoSpellSlotsAvailable then
+			aRet.bCastasPact = false
+		elseif  not aRet.bCastasPact and aRet.bNoSpellSlotsAvailable and
+		not aRet.bCastasRitual and not aRet.bNoPactSlotsAvailable then
+			aRet.bCastasPact = true
+		end
+	end
+
+	if aRet.bSpellcasting and (aSpellSlots[aRet.nCastLevel] == nil or bNextSlot) then
+		getNextSpellSlot(aRet, aSpellSlots)
+
+		if aRet.bRitual and (aRet.bNoSpellSlotsAvailable or
+		(not aRet.bUpcast and not aRet.bBaseSlotAvailable)) then
+			aRet.bCastasRitual = true
+		end
+	end
+
+	if bNextSlot and aRet.bCastasPact and aRet.bRitual then
+		if aRet.bCastasPactRitual and not aRet.bNoPactSlotsAvailable then
+			aRet.bCastasPactRitual = false
 		else
-			aRet.bHasSpellSlots = true
+			aRet.bCastasPactRitual = true
+		end
+	end
+
+	DB.setValue(node, "arcanewardlevel", "number", aRet.nCastLevel)
+	DB.setValue(node, "arcanewardritual", "number", boolToNumber(aRet.bCastasRitual))
+	DB.setValue(node, "arcanewardpactritual", "number", boolToNumber(aRet.bCastasPactRitual))
+	DB.setValue(node, "arcanewardcastaspact", "number", boolToNumber(aRet.bCastasPact))
+
+	return aRet
+end
+
+function resetCastInfo(node, aCastInfo)
+	aCastInfo.bCastasRitual = false
+	aCastInfo.bCastasPactRitual = false
+	aCastInfo.nCastLevel = aCastInfo.nLevel
+
+    if aCastInfo.bSpellcasting and aCastInfo.bPactMagic and OptionsManager.isOption("ARCANE_WARD_PACT", "on")
+    and aCastInfo.nPactLevel >= aCastInfo.nLevel then
+		aCastInfo.bCastasPact = true
+	elseif not aCastInfo.bSpellcasting and aCastInfo.bPactMagic then
+		aCastInfo.bCastasPact = true
+	else
+		aCastInfo.bCastasPact  = false
+	end
+	return getCurrentCastInfo(node, nil, aCastInfo)
+end
+
+function getNextSpellSlot(aCastInfo,aSpellSlots)
+	if (aCastInfo.bUpcast or aCastInfo.bRitual) and (next(aSpellSlots) ~= nil) then
+		local nNextCastLevel = -1
+		local nCurrent = aCastInfo.nCastLevel
+
+		if aCastInfo.bCastasRitual then
+			aCastInfo.bCastasRitual  = false
+			aCastInfo.nCastLevel = aCastInfo.nLevel
+			if aSpellSlots[aCastInfo.nCastLevel] ~=  nil then
+				return
+			end
+		end
+		if aCastInfo.bUpcast then
+			for nSpellLevel, nSlots in pairs(aSpellSlots) do
+				if nSpellLevel > aCastInfo.nCastLevel  then
+					nNextCastLevel = nSpellLevel
+					break
+				end
+			end
+			if nNextCastLevel == -1 then
+				aCastInfo.nCastLevel = aCastInfo.nLevel
+				if aCastInfo.bRitual  then
+					aCastInfo.bCastasRitual = true
+				elseif  aSpellSlots[aCastInfo.nCastLevel] == nil then
+					getNextSpellSlot(aCastInfo,aSpellSlots)
+				end
+			else
+				aCastInfo.nCastLevel = nNextCastLevel
+			end
+		elseif aCastInfo.bRitual then
+			aCastInfo.bCastasRitual = true
+		end
+	end
+end
+
+function boolToNumber(value)
+	return value == true and 1 or value == false and 0
+end
+
+function numberToBool(value)
+	if value == 1 then
+		return true
+	else
+		return false
+	end
+end
+
+function getMagicTraits(nodeChar)
+	local aRet = {bSpellcasting=false, bPactMagic=false, bArcaneWard=false}
+	for _,nodeFeature in pairs(DB.getChildren(nodeChar, "featurelist")) do
+		local sFeatureName = StringManager.trim(DB.getValue(nodeFeature, "name", ""):lower())
+		if sFeatureName == "spellcasting" then
+			aRet.bSpellcasting = true
+		elseif sFeatureName ==  "pact magic" then
+			aRet.bPactMagic = true
+		elseif sFeatureName ==  "arcane ward" then
+			aRet.bArcaneWard = true
 		end
 	end
 	return aRet
+end
+
+function getPactMagicSlots(nodeChar, nLevel)
+    local aPactslots = {nAvailable = 0, nLevel=0}
+    for  i=nLevel,5 do
+        local nSlotsMax = DB.getValue(nodeChar, "powermeta.pactmagicslots".. tostring(i) .. ".max", 0)
+        local nSlotsUsed = DB.getValue(nodeChar, "powermeta.pactmagicslots".. tostring(i) .. ".used", 0)
+		if nSlotsMax > 0 then
+			aPactslots.nLevel = i
+		end
+        if nSlotsUsed < nSlotsMax then
+			aPactslots.nAvailable = nSlotsMax - nSlotsUsed
+			break
+        end
+    end
+    return aPactslots
+end
+
+function expendSpellSlot(nodeChar, nLevel, bCastasPact)
+    if bCastasPact then
+        local nSlotsMax = DB.getValue(nodeChar, "powermeta.pactmagicslots".. tostring(nLevel) .. ".max", 0)
+        local nSlotsUsed = DB.getValue(nodeChar, "powermeta.pactmagicslots".. tostring(nLevel) .. ".used", 0)
+        if nSlotsUsed < nSlotsMax then
+            DB.setValue(nodeChar, "powermeta.pactmagicslots".. tostring(nLevel) .. ".used", "number", nSlotsUsed+1)
+        end
+    else
+        local nSlotsMax = DB.getValue(nodeChar, "powermeta.spellslots".. tostring(nLevel) .. ".max", 0)
+        local nSlotsUsed = DB.getValue(nodeChar, "powermeta.spellslots".. tostring(nLevel) .. ".used", 0)
+        if nSlotsUsed < nSlotsMax then
+            DB.setValue(nodeChar, "powermeta.spellslots".. tostring(nLevel) .. ".used", "number", nSlotsUsed+1)
+        end
+    end
 end
 
 function getSpellSlots(nodeChar, nLevel)

@@ -3,15 +3,21 @@
 <root>
 	<icon name="button_arcaneward" file="graphics/buttons/button_aw_small.png" />
 	<icon name="button_arcaneward_pressed" file="graphics/buttons/button_aw_small_down.png" />
+	<icon name="button_arcaneward_no_slots" file="graphics/buttons/button_aw_small_no_slots.png" />
+	<icon name="button_arcaneward_no_slots_pressed" file="graphics/buttons/button_aw_small_down_no_slots.png" />
+	<icon name="button_arcaneward_off" file="graphics/buttons/button_aw_small_off.png" />
+
 	<icon name="button_cast_spell" file="graphics/buttons/button_cast_small.png" />
 	<icon name="button_cast_spell_pressed" file="graphics/buttons/button_cast_small_down.png" />
-
-	<icon name="button_arcaneward_off" file="graphics/buttons/button_aw_small_off.png" />
+	<icon name="button_cast_spell_no_slots" file="graphics/buttons/button_cast_small_no_slots.png" />
+	<icon name="button_cast_spell_no_slots_pressed" file="graphics/buttons/button_cast_small_down_no_slots.png" />
 	<icon name="button_cast_spell_off" file="graphics/buttons/button_cast_small_off.png" />
 
-	<icon name="button_arcaneward_no_slots" file="graphics/buttons/button_aw_small_no_slots.png" />
-	<icon name="button_arcaneward_pressed_no_slots" file="graphics/buttons/button_aw_small_down_no_slots.png" />
-	<icon name="button_cast_spell_no_slots" file="graphics/buttons/button_cast_small_no_slots.png" />
-	<icon name="button_cast_spell_pressed_no_slots" file="graphics/buttons/button_cast_small_down_no_slots.png" />
+	<icon name="button_pactmagic" file="graphics/buttons/button_pm_small.png" />
+	<icon name="button_pactmagic_pressed" file="graphics/buttons/button_pm_small_down.png" />
+	<icon name="button_pactmagic_no_slots" file="graphics/buttons/button_pm_small_no_slots.png" />
+	<icon name="button_pactmagic_no_slots_pressed" file="graphics/buttons/button_pm_small_down_no_slots.png" />
+	<icon name="button_pactmagic_off" file="graphics/buttons/button_pm_small_off.png" />
+
 	<icon name="ArcaneWard" file="graphics/icons/ArcaneWard.png"></icon>
 </root>

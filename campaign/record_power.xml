@@ -21,6 +21,37 @@
 	</windowclass>
 	<windowclass name="power_item" merge="join">
 		<script file="campaign/scripts/power_item.lua" />
-	</windowclass>
+		<sheetdata>
+			<genericcontrol name="spacer" insertbefore="activatedetail">
+				<anchored to="rightanchor" height="20" width="20">
+					<top />
+					<right anchor="left" relation="relative" offset="0" />
+				</anchored>
+				<script>
+					function onInit()
+						local node = window.getDatabaseNode();
+						DB.addHandler(DB.getPath(node, "actions"), "onChildAdded", update);
+						DB.addHandler(DB.getPath(node, "actions"), "onChildDeleted", update);
 
+						local bShow = (DB.getChildCount(window.getDatabaseNode(), "actions") == 0);
+						setVisible(bShow);
+					end
+
+					function onClose()
+						local node = window.getDatabaseNode();
+						DB.removeHandler(DB.getPath(node, "actions"), "onChildAdded", update);
+						DB.removeHandler(DB.getPath(node, "actions"), "onChildDeleted", update);
+					end
+
+					function update()
+						if DB.getChildCount(window.getDatabaseNode(), "actions") == 0 then
+							setVisible(true);
+						else
+							setVisible(false);
+						end
+					end
+				</script>
+			</genericcontrol>
+		</sheetdata>
+	</windowclass>
 </root>

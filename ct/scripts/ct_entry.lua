@@ -54,33 +54,14 @@ function showArcaneWard()
 	local sShowAW = OptionsManager.getOption("ARCANE_WARD_SHOW_CT");
     local bShow = (sShowAW == "on")
 	arcanewardhp.setVisible(bShow)
-	if bShow then
-		if ArcaneWard.hasCA() then
-			--initresult.setAnchor("right", "rightanchor", "left", "absolute", -395)
-			--wounds.setAnchor("right", "rightanchor", "left", "absolute", -350)
-			--hptotal.setAnchor("right", "rightanchor", "left", "absolute", -310)
-			--hptemp.setAnchor("right", "rightanchor", "left", "absolute", -270)
-
-			--initresult.setAnchor("right", "rightanchor", "left", "relative", -15)
-			--hptotal.setAnchor("right", "rightanchor", "left", "relative", -10)
-			--wounds.setAnchor("right", "rightanchor", "left", "relative", -10)
+	if bShow and ArcaneWard.hasCA() then
 			hptemp.setAnchor("right", "rightanchor", "left", "relative", -50)
-			--arcaneward.setAnchor("right", "wounds", "left", "relative", -10)
-			arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -230)
-		end
-	else
-		if ArcaneWard.hasCA() then
-			--initresult.setAnchor("right", "rightanchor", "left", "absolute", -395)
-			--wounds.setAnchor("right", "rightanchor", "left", "absolute", -350)
-			--hptotal.setAnchor("right", "rightanchor", "left", "absolute", -310)
-			--hptemp.setAnchor("right", "rightanchor", "left", "absolute", -270)
-
-			--initresult.setAnchor("right", "rightanchor", "left", "relative", -15)
-			--hptotal.setAnchor("right", "rightanchor", "left", "relative", -10)
-			--wounds.setAnchor("right", "rightanchor", "left", "relative", -10)
+	elseif ArcaneWard.hasCA() then
 			hptemp.setAnchor("right", "rightanchor", "left", "relative", -10)
-			--arcaneward.setAnchor("right", "wounds", "left", "relative", -10)
-			arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -230)
-		end
+	end
+	if ArcaneWard.hasLA() and ArcaneWard.hasCA() then
+		arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -260)
+	elseif ArcaneWard.hasCA() then
+		arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -230)
 	end
 end

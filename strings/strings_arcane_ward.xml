@@ -1,6 +1,6 @@
 <!--
   	Author: Ryan Hagelstrom
-	Copyright � 2021
+	Copyright � 2022
 	This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 	https://creativecommons.org/licenses/by-sa/4.0/
 -->
@@ -13,7 +13,9 @@
 	<string name="ct_tooltip_arcaneward">Arcane Ward</string>
 	<string name="tooltip_cast">Cast</string>
 
-	<string name="option_spell_cast_game">PC Sheet: Show Cast Powers All</string>
+	<string name="option_arcane_ward">Arcane Ward</string>
+	<string name="option_spell_cast_game">Sheet: Show Cast Powers All (GM)</string>
 	<string name="option_spell_cast">Sheet: Show Cast Powers</string>
 	<string name="option_show_aw_ct">CT: Show Arcane Ward</string>
+	<string name="option_pact_aw">Default: Use Pact Magic Slots First</string>
 </root>
