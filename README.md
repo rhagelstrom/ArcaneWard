@@ -1,7 +1,7 @@
 # Arcane Ward
 
-**Current Version:** 1.2
-**Updated::** 05/26/22
+**Current Version:** 1.3
+**Updated::** 06/05/22
 
 Arcane Ward is Fantasy Grounds extension for 5E that automates the School of Abjuration trait Arcane Ward. Also mostly automates legacy NPCs with the trait Arcane Ward
 

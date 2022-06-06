@@ -12,29 +12,25 @@ function onInit()
     end
     local node = window.getDatabaseNode()
     nLevel = DB.getValue(node, "level", 0)
-    setCastToolTip(nLevel)
+    local aSpellParams = ArcaneWard.getUpcastRitual(node)
+    setCastToolTip(aSpellParams)
 
     if ArcaneWard.hasSAI() then
         setAnchor("left", "components_text_label", "right", "relative");
     end
 end
 
-function setCastToolTip(bRitual)
+function setCastToolTip(aSpellParams)
     local sToolTip
-    local node = window.getDatabaseNode()
-    local sDescription = DB.getValue(node, "description", "")
-    local sSchool = DB.getValue(node, "school", "")
-    local nRitual = DB.getValue(node, "ritual", 0)
-    local rActor = ActorManager.resolveActor(node.getParent().getParent())
-    if sSchool == "Abjuration" and ArcaneWard.hasArcaneWard(rActor) then
+    if aSpellParams.sSchool == "Abjuration" and aSpellParams.bHasArcaneWard then
         sToolTip = "Arcane Ward"
     else
         sToolTip = "Cast"
     end
-    if bRitual == true then
+    if bCastasRitual == true then
         sToolTip = sToolTip .. " as Ritual"
-    elseif sDescription:match("At Higher Levels") or nRitual == 1 then
-        sToolTip = sToolTip .. " as lvl " .. tostring(nLevel)
+    elseif  aSpellParams.bUpcast or  aSpellParams.bRitual  then
+        sToolTip = sToolTip .. " as Lvl " .. tostring(nLevel)
     end
     setTooltipText(sToolTip)
 end
@@ -43,71 +39,83 @@ function onButtonPress()
     if super and super.onButtonPress() then
         super.onButtonPress()
     end
-    local node = window.getDatabaseNode()
-    local nRitual = DB.getValue(node, "ritual", 0)
-    local sGroup = DB.getValue(node, "group", "")
-    local sSchool = DB.getValue(node, "school", "")
-    local nBaseLevel = DB.getValue(node, "level", 0)
-    local rActor = ActorManager.resolveActor(node.getParent().getParent())
-    local sDescription = DB.getValue(node, "description", "")
 
-    if Input.isShiftPressed() and (sDescription:match("At Higher Levels") or nRitual == 1) then
-        if nRitual == 1 then
-            if bCastasRitual then
-                bCastasRitual = false
-            else
-                bCastasRitual = true
-            end
-        else
-            local aSpellslots = getSpellSlots(node.getParent().getParent())
-            for i=nLevel,9  do
-                if aSpellslots[i] and i > nLevel then
-                    nLevel = i
-                    break
-                else
-                    nLevel = nBaseLevel
-                end
-            end
-        end
-        setCastToolTip(bCastasRitual)
+    local node = window.getDatabaseNode()
+    local aSpellParams = ArcaneWard.getUpcastRitual(node)
+    local sGroup = DB.getValue(node, "group", "")
+    local rActor = ActorManager.resolveActor(node.getParent().getParent())
+
+    if Input.isShiftPressed() and (aSpellParams.bUpcast or aSpellParams.bRitual) then
+        setSpellSlot(aSpellParams, true)
     else
+        setSpellSlot(aSpellParams, false)
         if not bCastasRitual then
             expendSpellSlot(node.getParent().getParent(), nLevel)
         end
         local nName = DB.getValue(node, "name", "")
-        if sGroup == "Spells" and sSchool == "Abjuration" and ArcaneWard.hasArcaneWard(rActor) then
-            ArcaneWard.castAbjuration(node.getParent().getParent(), nLevel, nName)
-        else
-            local rMessage = ChatManager.createBaseMessage(rActor, DB.getValue(nodeActor,"name"));
-			-- rMessage.secret
-			rMessage.icon = "ArcaneWard"
-			rMessage.text = rMessage.text .."Begins [CAST] " .. nName .. " [LVL " .. nLevel .."]"
-			Comm.deliverChatMessage(rMessage)
-        end
+            if sGroup == "Spells" and aSpellParams.sSchool == "Abjuration" and aSpellParams.bHasArcaneWard then
+                ArcaneWard.castAbjuration(node.getParent().getParent(), nLevel, nName)
+            else
+                local rMessage = ChatManager.createBaseMessage(rActor, DB.getValue(nodeActor,"name"));
+                -- rMessage.secret
+                rMessage.icon = "ArcaneWard"
+                if bCastasRitual then
+                    rMessage.text = rMessage.text .."Begins [CAST] " .. nName .. " [AS RITUAL]"
+
+                else
+                    rMessage.text = rMessage.text .."Begins [CAST] " .. nName .. " [LEVEL " .. nLevel .."]"
+                end
+                Comm.deliverChatMessage(rMessage)
+            end
         bCastasRitual = false
-        nLevel = nBaseLevel
-        setCastToolTip()
+        nLevel = aSpellParams.nBaseLevel
+        aSpellParams = ArcaneWard.getUpcastRitual(node)
+        setSpellSlot(aSpellParams, false)
     end
 end
 
-function getSpellSlots(nodeChar)
-    local aSpellSlots = {}
-    for i=1,9 do
-        local nSlotsMax = DB.getValue(nodeChar, "powermeta.spellslots".. tostring(i) .. ".max", 0)
-        local nSlotsUsed = DB.getValue(nodeChar, "powermeta.spellslots".. tostring(i) .. ".used", 0)
-        if nSlotsUsed < nSlotsMax then
-            aSpellSlots[i] =  nSlotsUsed
+function setSpellSlot(aSpellParams, bNext)
+    -- Keep cast as ritual if we are not cycling
+    if bCastasRitual and not bNext then
+        setCastToolTip(aSpellParams)
+        return
+    end
+    local nRet = nil
+    -- Check to see if we have slots, else force cycle to something we can cast
+    if  (aSpellParams.bHasSpellSlots or (aSpellParams.bUpcast and aSpellParams.aSpellSlots[nLevel])) and not bNext  then
+        setCastToolTip(aSpellParams)
+        return
+    end
+
+    if aSpellParams.bUpcast and next(aSpellParams.aSpellSlots) then
+          --If  had cast as ritual, cycle to the next, which is base level for spell
+        if bCastasRitual then
+            bCastasRitual = false
+            nLevel = aSpellParams.nBaseLevel
+        end
+        for i=nLevel,9  do
+            if aSpellParams.bUpcast and aSpellParams.aSpellSlots[i] and i > nLevel then
+                nRet = i
+                break
+            end
         end
     end
-    return aSpellSlots
+    if nRet == nil then
+        nRet = aSpellParams.nBaseLevel
+        if aSpellParams.bRitual then
+            bCastasRitual = true
+        end
+    end
+
+    nLevel = nRet
+    setCastToolTip(aSpellParams)
 end
 
 function expendSpellSlot(nodeChar, nLevel)
-    local sSlotUsedString = "powermeta.spellslots".. tostring(nLevel) .. ".used"
     local nSlotsMax = DB.getValue(nodeChar, "powermeta.spellslots".. tostring(nLevel) .. ".max", 0)
-    local nSlotsUsed = DB.getValue(nodeChar, sSlotUsedString, 0)
+    local nSlotsUsed = DB.getValue(nodeChar, "powermeta.spellslots".. tostring(nLevel) .. ".used", 0)
 
     if nSlotsUsed < nSlotsMax then
-        DB.setValue(nodeChar, sSlotUsedString, "number", nSlotsUsed+1)
+        DB.setValue(nodeChar, "powermeta.spellslots".. tostring(nLevel) .. ".used", "number", nSlotsUsed+1)
     end
 end

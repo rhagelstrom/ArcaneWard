@@ -36,13 +36,12 @@ function onInit()
 		extensions[name] = index
    end
 
-   if Session.IsHost then
-		OptionsManager.registerOption2("ARCANE_WARD_SPELL_CAST_GAME", false, "option_header_game",
-		"option_spell_cast_game", "option_entry_cycler",
-		{ labels = "option_val_on", values = "on",
-			baselabel = "option_val_off", baseval = "off", default = "off" });
-   end
-   OptionsManager.registerOption2("ARCANE_WARD_SPELL_CAST", true, "option_header_client",
+	OptionsManager.registerOption2("ARCANE_WARD_SPELL_CAST_GAME", false, "option_header_game",
+	"option_spell_cast_game", "option_entry_cycler",
+	{ labels = "option_val_on", values = "on",
+		baselabel = "option_val_off", baseval = "off", default = "off" });
+
+	OptionsManager.registerOption2("ARCANE_WARD_SPELL_CAST", true, "option_header_client",
    "option_spell_cast", "option_entry_cycler",
    { labels = "option_val_on", values = "on",
 	   baselabel = "option_val_off", baseval = "off", default = "off" });
@@ -81,13 +80,25 @@ function castAbjuration(nodeActor, nLevel ,nName)
 		local nArcaneWardHP = DB.getValue(nodeActor, sDBAWHP, 0)
 		nAdded = nLevel * 2
 		nTotal = nArcaneWardHP + nAdded
-
 	else
-		local nBonus = DB.getValue(nodeActor, "abilities.intelligence.bonus", 0)
+		local aParsed = parseArcaneWard(rActor)
+		local sClass
+		local sModifier
+		local nWizLevel = 0
+		if aParsed["class"] then
+			sClass = aParsed["class"]
+		else
+			sClass = "wizard"
+		end
+		if aParsed["modifier"] and StringManager.contains(DataCommon.abilities, aParsed["modifier"]) then
+			sModifier = aParsed["modifier"]
+		else
+			sModifier = "intelligence"
+		end
+		local nBonus = DB.getValue(nodeActor, "abilities." .. sModifier .. ".bonus", 0)
 		for _,nodeClass in pairs(DB.getChildren(nodeActor, "classes")) do
 			local sClassName = StringManager.trim(DB.getValue(nodeClass, "name", "")):lower()
-			--runewalker for my game Svilland Campaign Setting
-			if sClassName == "wizard" or sClassName == "runewalker" then
+			if sClassName  == sClass then
 				nWizLevel = DB.getValue(nodeClass, "level", 0)
 				sActivated = "[ACTIVATED] "
 				break
@@ -103,7 +114,44 @@ function castAbjuration(nodeActor, nLevel ,nName)
 	-- rMessage.secret
 	rMessage.icon = "ArcaneWard"
 	rMessage.text = rMessage.text .. "Begins [CAST] " .. nName .. " [LVL " .. nLevel .."] [Arcane Ward: " .. tostring(nAdded) .. " ] -> " .. sActivated .. "[to " ..  DB.getValue(nodeActor,"name") .."]"
-	Comm.deliverChatMessage(rMessage);
+	Comm.deliverChatMessage(rMessage)
+end
+
+function parseArcaneWard(rActor)
+	local nodeActor = ActorManager.getCreatureNode(rActor)
+	local nodeFeatures = nodeActor.getChild("featurelist")
+	local aAWParsed = {}
+	--PCs
+	if nodeFeatures ~= nil and (rActor.sType == "pc" or rActor.sType == "charsheet") then
+		local aFeatures = nodeFeatures.getChildren()
+		for _, nodeFeature in pairs(aFeatures) do
+			local sName = DB.getValue(nodeFeature, "name", "")
+			if sName:upper() == "ARCANE WARD" then
+				sDesc = DB.getValue(nodeFeature, "text", ""):lower()
+				aWords = StringManager.parseWords(sDesc)
+				local i = 1;
+				while aWords[i] do
+					if StringManager.isWord(aWords[i], "equal") and
+						StringManager.isWord(aWords[i+1], "to") and
+						StringManager.isWord(aWords[i+2], "twice") and
+						StringManager.isWord(aWords[i+3], "your") then
+							aAWParsed["class"] = aWords[i+4]
+					elseif StringManager.isWord(aWords[i], "+") and
+						StringManager.isWord(aWords[i+1], "your") and
+						StringManager.isWord(aWords[i+3], "modifier") then
+							aAWParsed["modifier"] = aWords[i+2]
+					-- elseif StringManager.isWord(aWords[i], "you") and
+					-- StringManager.isWord(aWords[i+1], "cast") and
+					-- StringManager.isWord(aWords[i+2], {"an", "a"} ) then
+					-- 	aAWParsed["spell"] = aWords[i+3]
+					end
+					i = i + 1
+				end
+				break
+			end
+		end
+	end
+	return aAWParsed
 end
 
 function hasArcaneWard(rActor)
@@ -232,13 +280,64 @@ function customRest(nodeActor, bLong)
 			DB.setValue(nodeActor, "hp.arcaneward", "number", 0)
 			local rMessage = ChatManager.createBaseMessage(rActor, DB.getValue(nodeActor,"name"));
 			rMessage.icon = "ArcaneWard"
-			rMessage.text = rMessage.text .. sActivated .. "[Arcane Ward] ->" .. " [DEACTIVATED]" .. " [to " ..  DB.getValue(nodeActor,"name") .."]"
+			rMessage.text = rMessage.text .. "[Arcane Ward] ->" .. " [DEACTIVATED]" .. " [to " ..  DB.getValue(nodeActor,"name") .."]"
 			Comm.deliverChatMessage(rMessage);
 		end
 	end
 	rest(nodeActor, bLong)
 end
 
+function getUpcastRitual(node)
+	local aRet = {}
+    local rActor = ActorManager.resolveActor(node.getParent().getParent())
+	local sDescription = DB.getValue(node, "description", "")
+
+	aRet.sSchool = DB.getValue(node, "school", "")
+	aRet.nBaseLevel = DB.getValue(node, "level", 0)
+	aRet.bHasArcaneWard = ArcaneWard.hasArcaneWard(rActor)
+
+	if DB.getValue(node, "ritual", 0) == 1 then
+		aRet.bRitual = true
+	else
+		aRet.bRitual = false
+	end
+
+	if sDescription:match("At Higher Levels") then
+		aRet.bUpcast =  true
+	else
+		aRet.bUpcast =  false
+	end
+
+	if aRet.bUpcast then
+		aRet.aSpellSlots = getSpellSlots(node.getParent().getParent(), aRet.nBaseLevel)
+		if aRet.aSpellSlots[aRet.nBaseLevel] ~= nil then
+			aRet.bHasSpellSlots = true
+		else
+			aRet.bHasSpellSlots = false
+		end
+	else
+		local nSlotsMax = DB.getValue(node.getParent().getParent(), "powermeta.spellslots".. tostring(aRet.nBaseLevel) .. ".max", 0)
+    	local nSlotsUsed = DB.getValue(node.getParent().getParent(), "powermeta.spellslots".. tostring(aRet.nBaseLevel) .. ".used", 0)
+		if nSlotsMax <= nSlotsUsed then
+			aRet.bHasSpellSlots = false
+		else
+			aRet.bHasSpellSlots = true
+		end
+	end
+	return aRet
+end
+
+function getSpellSlots(nodeChar, nLevel)
+    local aSpellSlots = {}
+    for i=nLevel,9 do
+        local nSlotsMax = DB.getValue(nodeChar, "powermeta.spellslots".. tostring(i) .. ".max", 0)
+        local nSlotsUsed = DB.getValue(nodeChar, "powermeta.spellslots".. tostring(i) .. ".used", 0)
+        if nSlotsUsed < nSlotsMax then
+            aSpellSlots[i] =  nSlotsMax - nSlotsUsed
+        end
+    end
+    return aSpellSlots
+end
 
 function customAddNPCtoCT(sClass, nodeNPC, sName)
 	local nodeCTEntry  = addNPCtoCT(sClass, nodeNPC, sName)
