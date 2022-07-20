@@ -257,7 +257,19 @@ function getDBString(node)
 	end
 end
 
-function customApplyDamage (rSource, rTarget, bSecret, sDamage, nTotal)
+
+function customApplyDamage(rSource, rTarget, vRollOrSecret)
+	local bSecret, rRoll;
+	if type(vRollOrSecret) == "table" then
+		rRoll = vRollOrSecret;
+
+		bSecret = rRoll.bSecret;
+		sDamage = rRoll.sDesc;
+		nTotal = rRoll.nTotal;
+	else
+		Debug.console("ActionDamage.applyDamage - DEPRECATED - 2022-07-19 - Use ActionDamage.applyDamage(rSource, rTarget, rRoll)");
+		bSecret = vRollOrSecret;
+	end
 	-- Get the effects on source, determine. is arcane ward. determine source
 	local aArcaneWardEffects = getEffectsByType(rTarget, "ARCANEWARD")
 	if next(aArcaneWardEffects) then
@@ -276,16 +288,30 @@ function customApplyDamage (rSource, rTarget, bSecret, sDamage, nTotal)
 	if (hasArcaneWard(rTarget)) then
 		sDamage, nTotal = arcaneWard(rSource, rTarget, bSecret, sDamage, nTotal)
 	end
-	return applyDamage(rSource, rTarget, bSecret, sDamage, nTotal)
+	return applyDamage(rSource, rTarget, vRollOrSecret)
 end
 
-function customMessageDamage(rSource, rTarget, bSecret, sDamageType, sDamageDesc, sTotal, sExtraResult)
+function customMessageDamage(rSource, rTarget, vRollOrSecret)
+	local bSecret, sDamageType, rRoll;
+	if type(vRollOrSecret) == "table" then
+		rRoll = vRollOrSecret;
+
+		bSecret = rRoll.bSecret;
+		sDamageType = rRoll.sType;
+		sDamageText = rRoll.sDamageText;
+		sDamageDesc = rRoll.sDesc;
+		sTotal = rRoll.nTotal;
+		sExtraResult = rRoll.sResults;
+	else
+		Debug.console("ActionDamage.messageDamage - DEPRECATED - 2022-07-19 - Use ActionDamage.messageDamage(rSource, rTarget, rRoll)")
+		return
+	end
 	--TODO: Think we need to loop here incase of multiple arcane wards
 	local sArcaneWard = sDamageDesc:match("%[ARCANE WARD ABSORBED:%s*%d*]")
 	if sArcaneWard ~= nil then
 		sExtraResult = sArcaneWard .. sExtraResult
 	end
-	return messageDamage(rSource, rTarget, bSecret, sDamageType, sDamageDesc, sTotal, sExtraResult)
+	return messageDamage(rSource, rTarget, vRollOrSecret)
 end
 
 function customRest(nodeActor, bLong)
