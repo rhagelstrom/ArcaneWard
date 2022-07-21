@@ -59,9 +59,14 @@ function showArcaneWard()
 	elseif ArcaneWard.hasCA() then
 			hptemp.setAnchor("right", "rightanchor", "left", "relative", -10)
 	end
-	if ArcaneWard.hasLA() and ArcaneWard.hasCA() then
-		arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -260)
+
+	if ArcaneWard.hasLA() and ArcaneWard.hasCG() and ArcaneWard.hasCA() then
+		arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -283)
+	elseif ArcaneWard.hasLA() and ArcaneWard.hasCA() then
+		arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -263)
+	elseif ArcaneWard.hasCG() and ArcaneWard.hasCA() then
+			arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -248)
 	elseif ArcaneWard.hasCA() then
-		arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -230)
+		arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -228)
 	end
 end

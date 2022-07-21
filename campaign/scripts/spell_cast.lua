@@ -12,21 +12,28 @@ function onInit()
     end
     OptionsManager.registerCallback("ARCANE_WARD_SPELL_CAST_GAME", optionChange)
     OptionsManager.registerCallback("ARCANE_WARD_SPELL_CAST", optionChange)
+    OptionsManager.registerCallback("ARCANE_WARD_PACT", defaultButton)
     optionChange()
 end
 
 function onClose()
     OptionsManager.unregisterCallback("ARCANE_WARD_SPELL_CAST_GAME", optionChange)
     OptionsManager.unregisterCallback("ARCANE_WARD_SPELL_CAST", optionChange)
+    OptionsManager.unregisterCallback("ARCANE_WARD_PACT", defaultButton)
     optionChange(true)
     if super and super.onClose then
         super.onClose()
     end
 end
 
+function defaultButton()
+
+end
+
 function optionChange(bClose)
     local node = window.getDatabaseNode()
     local aCastInfo = ArcaneWard.getCurrentCastInfo(node)
+    aCastInfo = ArcaneWard.resetCastInfo(node, aCastInfo)
 
     if not bCallbacksRegistered and (OptionsManager.isOption("ARCANE_WARD_SPELL_CAST_GAME", "on") or
     OptionsManager.isOption("ARCANE_WARD_SPELL_CAST", "on") or aCastInfo.bHasArcaneWard) then
@@ -94,6 +101,7 @@ end
 function onUpdate()
     local node = window.getDatabaseNode()
     local aCastInfo = ArcaneWard.getCurrentCastInfo(node)
+    aCastInfo = ArcaneWard.resetCastInfo(node, aCastInfo)
     setCastToolTip(aCastInfo)
 end
 

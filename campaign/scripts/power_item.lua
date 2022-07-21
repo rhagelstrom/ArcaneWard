@@ -29,7 +29,7 @@ end
 function optionChange(bClose)
     local node = getDatabaseNode()
     local aCastInfo = ArcaneWard.getCurrentCastInfo(node)
-
+    aCastInfo = ArcaneWard.resetCastInfo(node, aCastInfo)
     if not bCallbacksRegistered and (OptionsManager.isOption("ARCANE_WARD_SPELL_CAST_GAME", "on") or
     OptionsManager.isOption("ARCANE_WARD_SPELL_CAST", "on") or aCastInfo.bHasArcaneWard) then
         registerCallbacks(aCastInfo)
@@ -42,7 +42,8 @@ function optionChange(bClose)
 end
 
 function registerCallbacks(aCastInfo)
-    OptionsManager.registerCallback("ARCANE_WARD_PACT", onDisplayChanged)
+    OptionsManager.registerCallback("ARCANE_WARD_PACT", onUpdate)
+
     local node = getDatabaseNode()
     local sNodePath =  node.getParent().getParent().getPath()
 
@@ -64,11 +65,11 @@ function registerCallbacks(aCastInfo)
     end
 
     DB.addHandler(node.getPath() ..".arcanewardcastaspact", "onUpdate", onDisplayChanged)
-    onDisplayChanged()
+    onUpdate()
 end
 
 function unRegisterCallbacks(aCastInfo)
-    OptionsManager.unregisterCallback("ARCANE_WARD_PACT", onDisplayChanged)
+    OptionsManager.unregisterCallback("ARCANE_WARD_PACT", onUpdate)
 
     local node = getDatabaseNode()
     local sNodePath =  node.getParent().getParent().getPath()
@@ -91,6 +92,13 @@ function unRegisterCallbacks(aCastInfo)
         end
     end
     DB.removeHandler(node.getPath() ..".arcanewardcastaspact", "onUpdate", onDisplayChanged)
+    onUpdate()
+end
+
+function onUpdate()
+    local node = getDatabaseNode()
+    local aCastInfo = ArcaneWard.getCurrentCastInfo(node)
+    aCastInfo = ArcaneWard.resetCastInfo(node, aCastInfo)
     onDisplayChanged()
 end
 
@@ -98,15 +106,26 @@ function onDisplayChanged()
     if super and super.onDisplayChanged then
         super.onDisplayChanged();
     end
+
     local node = getDatabaseNode()
     local sGroup = DB.getValue(node, "group", "")
     local sDisplayMode = DB.getValue(getDatabaseNode(), "...powerdisplaymode", "");
-    local aCastInfo = ArcaneWard.getCurrentCastInfo(node)
+    local bProcess = false
+    local aCastInfo
+
+	for _,vGroup in pairs(DB.getChildren(node.getParent().getParent(), "powergroup")) do
+		local sPowerGroup = DB.getValue(vGroup, "name", "");
+        if sPowerGroup == sGroup and DB.getValue(vGroup, "castertype", "") == "memorization" then
+            bProcess = true
+            aCastInfo = ArcaneWard.getCurrentCastInfo(node)
+            break
+        end
+	end
 
     if sDisplayMode == "summary"then
         header.subwindow.button_abjuration.setVisible(false);
         header.subwindow.arcaneward_text_label.setVisible(false);
-    elseif sDisplayMode == "action" and sGroup == "Spells" and
+    elseif sDisplayMode == "action" and bProcess and
     (aCastInfo.bSpellcasting or aCastInfo.bPactMagic) and aCastInfo.nLevel > 0 then
         setCastButton(aCastInfo)
     else

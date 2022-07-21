@@ -71,7 +71,9 @@ end
 function hasLA()
     return extensions["5e Legendary Assistant"]
 end
-
+function hasCG()
+    return extensions["CombatGroups"]
+end
 function hasSAI()
 	return extensions["Spell Action Info"]
 end
@@ -198,26 +200,25 @@ function hasArcaneWard(rActor)
 	return false
 end
 
-function arcaneWard(rSource, rTarget, bSecret, sDamage, nTotal)
+function arcaneWard(rSource, rTarget, rRoll)
 	local nodeTarget = ActorManager.getCreatureNode(rTarget)
 	local nActive = DB.getValue(nodeTarget, "arcaneward", 0)
 	local sDBAWHP = getDBString(nodeTarget)
 	local nArcaneWardHP = DB.getValue(nodeTarget, sDBAWHP, 0)
 
 	if nActive == 1 and nArcaneWardHP > 0 then
-		local nTotalOrig = nTotal
-		if nTotal >= nArcaneWardHP then
-			nTotal = nTotal - nArcaneWardHP
+		local nTotalOrig = rRoll.nTotal
+		if rRoll.nTotal >= nArcaneWardHP then
+			rRoll.nTotal = rRoll.nTotal - nArcaneWardHP
 			nArcaneWardHP = 0
 		else
-			nArcaneWardHP = nArcaneWardHP - nTotal
-			nTotal = 0
+			nArcaneWardHP = nArcaneWardHP - rRoll.nTotal
+			rRoll.nTotal = 0
 		end
 		DB.setValue(nodeTarget, sDBAWHP, "number", nArcaneWardHP)
-		sDamage = removeAbsorbed(sDamage, nTotalOrig -  nTotal)
-		sDamage =  "[ARCANE WARD ABSORBED: " .. tostring(nTotalOrig - nTotal) .. "] " .. sDamage
+		rRoll.sDesc = removeAbsorbed(rRoll.sDesc, nTotalOrig -  rRoll.nTotal)
+		rRoll.sDesc = "[ARCANE WARD ABSORBED: " .. tostring(nTotalOrig - rRoll.nTotal) .. "] " .. rRoll.sDesc
 	end
-	return sDamage, nTotal
 end
 
 --this is kind of a mess but I'm done with string manip for the day
@@ -258,18 +259,7 @@ function getDBString(node)
 end
 
 
-function customApplyDamage(rSource, rTarget, vRollOrSecret)
-	local bSecret, rRoll;
-	if type(vRollOrSecret) == "table" then
-		rRoll = vRollOrSecret;
-
-		bSecret = rRoll.bSecret;
-		sDamage = rRoll.sDesc;
-		nTotal = rRoll.nTotal;
-	else
-		Debug.console("ActionDamage.applyDamage - DEPRECATED - 2022-07-19 - Use ActionDamage.applyDamage(rSource, rTarget, rRoll)");
-		bSecret = vRollOrSecret;
-	end
+function customApplyDamage(rSource, rTarget, rRoll)
 	-- Get the effects on source, determine. is arcane ward. determine source
 	local aArcaneWardEffects = getEffectsByType(rTarget, "ARCANEWARD")
 	if next(aArcaneWardEffects) then
@@ -279,39 +269,25 @@ function customApplyDamage(rSource, rTarget, vRollOrSecret)
 			if hasArcaneWard(rActor) then
 				for _, rEffect in pairs(aArcaneWardEffects) do
 					if rEffect.source_name == rActor.sCTNode then
-						sDamage, nTotal = arcaneWard(rSource, rActor, bSecret, sDamage, nTotal)
+						arcaneWard(rSource, rActor, rRoll)
 					end
 				end
 			end
 		end
 	end
 	if (hasArcaneWard(rTarget)) then
-		sDamage, nTotal = arcaneWard(rSource, rTarget, bSecret, sDamage, nTotal)
+		arcaneWard(rSource, rTarget, rRoll)
 	end
-	return applyDamage(rSource, rTarget, vRollOrSecret)
+	return applyDamage(rSource, rTarget, rRoll)
 end
 
-function customMessageDamage(rSource, rTarget, vRollOrSecret)
-	local bSecret, sDamageType, rRoll;
-	if type(vRollOrSecret) == "table" then
-		rRoll = vRollOrSecret;
-
-		bSecret = rRoll.bSecret;
-		sDamageType = rRoll.sType;
-		sDamageText = rRoll.sDamageText;
-		sDamageDesc = rRoll.sDesc;
-		sTotal = rRoll.nTotal;
-		sExtraResult = rRoll.sResults;
-	else
-		Debug.console("ActionDamage.messageDamage - DEPRECATED - 2022-07-19 - Use ActionDamage.messageDamage(rSource, rTarget, rRoll)")
-		return
-	end
+function customMessageDamage(rSource, rTarget, rRoll)
 	--TODO: Think we need to loop here incase of multiple arcane wards
-	local sArcaneWard = sDamageDesc:match("%[ARCANE WARD ABSORBED:%s*%d*]")
-	if sArcaneWard ~= nil then
-		sExtraResult = sArcaneWard .. sExtraResult
+	local sArcaneWard = rRoll.sDesc:match("%[ARCANE WARD ABSORBED:%s*%d*]")
+	if sArcaneWard then
+		rRoll.sResults = sArcaneWard .. rRoll.sResults
 	end
-	return messageDamage(rSource, rTarget, vRollOrSecret)
+	return messageDamage(rSource, rTarget, rRoll)
 end
 
 function customRest(nodeActor, bLong)
@@ -352,18 +328,19 @@ function getCurrentCastInfo(node, bNextSlot, aCastInfo)
 	local nodeChar = node.getParent().getParent()
 	local aPactSlots
 	local aSpellSlots
-	local aTraits
+	local aTraits = getMagicTraits(nodeChar)
 
 	-- If passed a castinfo. Done for resetting after cast
-	if aCastInfo ~= nil then
+	if aCastInfo then
 		aRet = aCastInfo
 	else
 		local sDescription = DB.getValue(node, "description", "")
-		aTraits = getMagicTraits(nodeChar)
 		aRet.nLevel  = DB.getValue(node, "level", 0)
 		aRet.nCastLevel = DB.getValue(node, "arcanewardlevel", aRet.nLevel)
-		aRet.bCastasRitual = numberToBool(DB.getValue(node, "arcanewardritual", 0))
-		aRet.bCastasPactRitual = numberToBool(DB.getValue(node, "arcanewardpactritual", 0))
+		if aTraits.bRitualCaster then
+			aRet.bCastasRitual = numberToBool(DB.getValue(node, "arcanewardritual", 0))
+			aRet.bCastasPactRitual = numberToBool(DB.getValue(node, "arcanewardpactritual", 0))
+		end
 		aRet.bCastasPact = numberToBool(DB.getValue(node, "arcanewardcastaspact", 0))
 
 		aRet.bSpellcasting = aTraits.bSpellcasting
@@ -375,7 +352,7 @@ function getCurrentCastInfo(node, bNextSlot, aCastInfo)
 			aRet.bAbjuration = true
 		end
 
-		if DB.getValue(node, "ritual", 0) == 1 then
+		if aTraits.bRitualCaster and DB.getValue(node, "ritual", 0) == 1 then
 			aRet.bRitual = true
 		end
 
@@ -440,9 +417,17 @@ function getCurrentCastInfo(node, bNextSlot, aCastInfo)
 	end
 
 	DB.setValue(node, "arcanewardlevel", "number", aRet.nCastLevel)
-	DB.setValue(node, "arcanewardritual", "number", boolToNumber(aRet.bCastasRitual))
-	DB.setValue(node, "arcanewardpactritual", "number", boolToNumber(aRet.bCastasPactRitual))
-	DB.setValue(node, "arcanewardcastaspact", "number", boolToNumber(aRet.bCastasPact))
+	if aRet.bPactMagic then
+		DB.setValue(node, "arcanewardcastaspact", "number", boolToNumber(aRet.bCastasPact))
+	end
+	if aTraits.bRitualCaster and aRet.bRitual then
+		if aRet.bSpellcasting then
+			DB.setValue(node, "arcanewardritual", "number", boolToNumber(aRet.bCastasRitual))
+		end
+		if aRet.bPactMagic then
+			DB.setValue(node, "arcanewardpactritual", "number", boolToNumber(aRet.bCastasPactRitual))
+		end
+	end
 
 	return aRet
 end
@@ -511,15 +496,21 @@ function numberToBool(value)
 end
 
 function getMagicTraits(nodeChar)
-	local aRet = {bSpellcasting=false, bPactMagic=false, bArcaneWard=false}
+	local aRet = {bSpellcasting=false, bPactMagic=false, bArcaneWard=false, bRitualCaster=false}
 	for _,nodeFeature in pairs(DB.getChildren(nodeChar, "featurelist")) do
 		local sFeatureName = StringManager.trim(DB.getValue(nodeFeature, "name", ""):lower())
-		if sFeatureName == "spellcasting" then
+		if sFeatureName:match("spellcasting") then
 			aRet.bSpellcasting = true
-		elseif sFeatureName ==  "pact magic" then
+			local sDesc = DB.getValue(nodeFeature, "text", ""):lower()
+			if sDesc:match("ritual casting") then
+				aRet.bRitualCaster = true
+			end
+		elseif sFeatureName:match("pact magic") then
 			aRet.bPactMagic = true
-		elseif sFeatureName ==  "arcane ward" then
+		elseif sFeatureName:match ("arcane ward") then
 			aRet.bArcaneWard = true
+		elseif sFeatureName:match("ritual casting") then
+			aRet.bRitualCaster = true
 		end
 	end
 	return aRet
