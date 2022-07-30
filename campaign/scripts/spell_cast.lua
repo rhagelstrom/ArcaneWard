@@ -161,7 +161,7 @@ function onButtonPress()
             end
         else
             local rMessage = ChatManager.createBaseMessage(rActor, DB.getValue(nodeActor,"name"))
-            rMessage.icon = "ArcaneWard"
+            rMessage.icon = "ArcaneWardCast"
             if aCastInfo.bCastasRitual or aCastInfo.bCastasPactRitutal then
                 rMessage.text = rMessage.text .."Begins [CAST] " .. sName .. " [AS RITUAL]"
             elseif aCastInfo.bCastasPact then

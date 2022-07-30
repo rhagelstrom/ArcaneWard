@@ -260,6 +260,9 @@ end
 
 
 function customApplyDamage(rSource, rTarget, rRoll)
+	if not rSource or not rTarget or not rRoll then
+		return applyDamage(rSource, rTarget, rRoll)
+	end
 	-- Get the effects on source, determine. is arcane ward. determine source
 	local aArcaneWardEffects = getEffectsByType(rTarget, "ARCANEWARD")
 	if next(aArcaneWardEffects) then
@@ -275,7 +278,7 @@ function customApplyDamage(rSource, rTarget, rRoll)
 			end
 		end
 	end
-	if (hasArcaneWard(rTarget)) then
+	if hasArcaneWard(rTarget) then
 		arcaneWard(rSource, rTarget, rRoll)
 	end
 	return applyDamage(rSource, rTarget, rRoll)
