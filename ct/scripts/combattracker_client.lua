@@ -7,13 +7,13 @@ function onInit()
     OptionsManager.registerCallback("SHPC", updateHealthDisplayAW);
     OptionsManager.registerCallback("SHNPC", updateHealthDisplayAW);
 
-    OptionsManager.registerCallback("ARCANE_WARD_SHOW_CT", showArcaneWard)
+    OptionsManager.registerCallback("ARCANE_WARD_SHOW_CT", updateHealthDisplayAW)
 
     if super and super.onInit() then
         super.onInit()
     end
 
-    showArcaneWard()
+    updateHealthDisplayAW()
 end
 
 function onClose()
@@ -22,47 +22,33 @@ function onClose()
     end
     OptionsManager.unregisterCallback("SHPC", updateHealthDisplayAW);
     OptionsManager.unregisterCallback("SHNPC", updateHealthDisplayAW);
-    OptionsManager.unregisterCallback("ARCANE_WARD_SHOW_CT", showArcaneWard)
+    OptionsManager.unregisterCallback("ARCANE_WARD_SHOW_CT", updateHealthDisplayAW)
 end
 
 function updateHealthDisplayAW()
-    local sOptSHPC = OptionsManager.getOption("SHPC");
-    local sOptSHNPC = OptionsManager.getOption("SHNPC");
-    local bShowDetail = (sOptSHPC == "detailed") or (sOptSHNPC == "detailed");
-
-    label_arcaneward.setVisible(bShowDetail);
-    showArcaneWard()
-end
-
-function showArcaneWard()
-    local sShowAW = OptionsManager.getOption("ARCANE_WARD_SHOW_CT");
+    local sOptSHPC = OptionsManager.getOption("SHPC")
+    local sOptSHNPC = OptionsManager.getOption("SHNPC")
+    local sShowAW = OptionsManager.getOption("ARCANE_WARD_SHOW_CT")
     local bShow = (sShowAW == "on")
-    label_arcaneward.setVisible(bShow)
+    local bShowDetail = bShow and ((sOptSHPC == "detailed") or (sOptSHNPC == "detailed"))
+
+    label_arcaneward.setVisible(bShowDetail)
+
     if bShow then
+        label_status.setAnchoredWidth("159")
         if ArcaneWard.hasCA() then
-            label_init.setAnchor("right", "rightanchor", "left", "absolute", -170)
-            label_wounds.setAnchor("right", "rightanchor", "left", "absolute", -130)
-            label_hp.setAnchor("right", "rightanchor", "left", "absolute", -90)
-            label_temp.setAnchor("right", "rightanchor", "left", "absolute", -50)
-            label_arcaneward.setAnchor("right", "rightanchor", "left", "absolute", -10)
+            label_temp.setAnchor("right", "rightanchor", "left", "relative", -60)
+            label_arcaneward.setAnchor("right", "rightanchor", "left", "relative", 110)
         else
-            label_init.setAnchor("right", "rightanchor", "left", "absolute", -170)
-            label_hp.setAnchor("right", "rightanchor", "left", "absolute", -130)
-            label_temp.setAnchor("right", "rightanchor", "left", "absolute", -90)
-            label_wounds.setAnchor("right", "rightanchor", "left", "absolute", -50)
-            label_arcaneward.setAnchor("right", "rightanchor", "left", "absolute", -10)
+            label_wounds.setAnchor("right", "rightanchor", "left", "relative", -10)
+            label_arcaneward.setAnchor("right", "rightanchor", "left", "relative", -15)
         end
     else
+        label_status.setAnchoredWidth("110")
         if ArcaneWard.hasCA() then
-            label_init.setAnchor("right", "rightanchor", "left", "absolute", -130)
-            label_wounds.setAnchor("right", "rightanchor", "left", "absolute", -90)
-            label_hp.setAnchor("right", "rightanchor", "left", "absolute", -50)
-            label_temp.setAnchor("right", "rightanchor", "left", "absolute", -10)
+            label_temp.setAnchor("right", "rightanchor", "left", "relative", -15)
         else
-            label_init.setAnchor("right", "rightanchor", "left", "absolute", -130)
-            label_hp.setAnchor("right", "rightanchor", "left", "absolute", -90)
-            label_temp.setAnchor("right", "rightanchor", "left", "absolute", -50)
-            label_wounds.setAnchor("right", "rightanchor", "left", "absolute", -10)
+            label_wounds.setAnchor("right", "rightanchor", "left", "relative", -15)
         end
     end
 end

@@ -20,6 +20,6 @@
 	<icon name="button_pactmagic_off" file="graphics/buttons/button_pm_small_off.png" />
 
 	<icon name="ArcaneWard" file="graphics/icons/ArcaneWard.png"></icon>
-	<icon name="ArcaneWardCast" file="graphics/icons/ArcaneWardCast.png"></icon>
+	<icon name="ArcaneWardCast" file="graphics/icons/ArcaneWard.png"></icon>
 
 </root>

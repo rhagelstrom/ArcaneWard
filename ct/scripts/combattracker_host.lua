@@ -27,29 +27,29 @@ function showArcaneWard()
 
     if bShow then
         if ArcaneWard.hasCA() then
-            label_init.setAnchor("right", "header_labels", "right", "relative", -180)
-            label_wounds.setAnchor("right", "header_labels", "right", "relative", -135)
-            label_hp.setAnchor("right", "header_labels", "right", "relative", -95)
-            label_temp.setAnchor("right", "header_labels", "right", "relative", -55)
-            label_arcaneward.setAnchor("right", "header_labels", "right", "relative", -15)
+            label_init.setAnchor("right", "header_labels", "right", "relative", -343)
+            label_wounds.setAnchor("right", "header_labels", "right", "relative", -298)
+            label_hp.setAnchor("right", "header_labels", "right", "relative", -258)
+            label_temp.setAnchor("right", "header_labels", "right", "relative", -218)
+            label_arcaneward.setAnchor("right", "header_labels", "right", "relative", -178)
         else
-            label_init.setAnchor("right", "header_labels", "right", "relative", -180)
-            label_hp.setAnchor("right", "header_labels", "right", "relative", -135)
-            label_temp.setAnchor("right", "header_labels", "right", "relative", -95)
-            label_wounds.setAnchor("right", "header_labels", "right", "relative", -55)
-            label_arcaneward.setAnchor("right", "header_labels", "right", "relative", -15)
+            label_init.setAnchor("right", "header_labels", "right", "relative", -343)
+            label_hp.setAnchor("right", "header_labels", "right", "relative", -298)
+            label_temp.setAnchor("right", "header_labels", "right", "relative", -258)
+            label_wounds.setAnchor("right", "header_labels", "right", "relative", -218)
+            label_arcaneward.setAnchor("right", "header_labels", "right", "relative", -178)
         end
     else
         if ArcaneWard.hasCA() then
-            label_init.setAnchor("right", "header_labels", "right", "relative", -140)
-            label_wounds.setAnchor("right", "header_labels", "right", "relative", -95)
-            label_hp.setAnchor("right", "header_labels", "right", "relative", -55)
-            label_temp.setAnchor("right", "header_labels", "right", "relative", -15)
+            label_init.setAnchor("right", "header_labels", "right", "relative", -303)
+            label_wounds.setAnchor("right", "header_labels", "right", "relative", -258)
+            label_hp.setAnchor("right", "header_labels", "right", "relative", -218)
+            label_temp.setAnchor("right", "header_labels", "right", "relative", -178)
         else
-            label_init.setAnchor("right", "header_labels", "right", "relative", -140)
-            label_hp.setAnchor("right", "header_labels", "right", "relative", -95)
-            label_temp.setAnchor("right", "header_labels", "right", "relative", -55)
-            label_wounds.setAnchor("right", "header_labels", "right", "relative", -15)
+           label_init.setAnchor("right", "header_labels", "right", "relative", -303)
+           label_hp.setAnchor("right", "header_labels", "right", "relative", -258)
+           label_temp.setAnchor("right", "header_labels", "right", "relative", -218)
+           label_wounds.setAnchor("right", "header_labels", "right", "relative", -178)
         end
     end
 end

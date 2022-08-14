@@ -7,70 +7,53 @@ function onInit()
     if super and super.onInit() then
         super.onInit()
     end
-    OptionsManager.registerCallback("ARCANE_WARD_SHOW_CT", showArcaneWard)
+    OptionsManager.registerCallback("ARCANE_WARD_SHOW_CT", updateHealthDisplay)
 
-	showArcaneWard()
+	updateHealthDisplay()
 end
 
 function onClose()
     if super and super.onInit then
         super.onInit();
     end
-    OptionsManager.unregisterCallback("ARCANE_WARD_SHOW_CT", showArcaneWard)
+    OptionsManager.unregisterCallback("ARCANE_WARD_SHOW_CT", updateHealthDisplay)
 end
-
 
 function updateHealthDisplay()
     if super and super.updateHealthDisplay() then
         super.updateHealthDisplay()
     end
 	local sOption;
-	if friendfoe.getStringValue() == "friend" then
+    local sShowAW = OptionsManager.getOption("ARCANE_WARD_SHOW_CT");
+    local bShow = (sShowAW == "on")
+   if friendfoe.getStringValue() == "friend" then
 		sOption = OptionsManager.getOption("SHPC");
 	else
 		sOption = OptionsManager.getOption("SHNPC");
 	end
 
-	if sOption == "detailed" then
-        arcanewardhp.setVisible(true);
-        showArcaneWard()
-	elseif sOption == "status" then
-        arcanewardhp.setVisible(false);
-	else
-        arcanewardhp.setVisible(false);
-	end
-end
-
-function showArcaneWard()
-    local sShowAW = OptionsManager.getOption("ARCANE_WARD_SHOW_CT");
-    local bShow = (sShowAW == "on")
-    arcanewardhp.setVisible(bShow)
-
-    if bShow then
+    if bShow and sOption == "detailed" then
+        arcanewardhp.setVisible(true)
+		arcanewardhp.setAnchor("right", "rightanchor", "left", "relative", -43)
+		friendfoe.setAnchor("right", "rightanchor", "left", "relative", 60)
+        healthbase.setAnchoredWidth("110")
         if ArcaneWard.hasCA() then
-            initresult.setAnchor("right", "rightanchor", "left", "relative", -15)
-            wounds.setAnchor("right", "healthbase", "left", "absolute", 30)
-            hptotal.setAnchor("right", "healthbase", "left", "absolute", 70)
-            hptemp.setAnchor("right", "healthbase", "left", "absolute", 110)
-            arcanewardhp.setAnchor("right", "healthbase", "left", "absolute", 150)
-        else
-            initresult.setAnchor("right", "rightanchor", "left", "relative", -15)
-            hptotal.setAnchor("right", "healthbase", "left", "absolute", 30)
-            hptemp.setAnchor("right", "healthbase", "left", "absolute", 70)
-            wounds.setAnchor("right", "healthbase", "left", "absolute", 110)
-            arcanewardhp.setAnchor("right", "healthbase", "left", "absolute", 150)
+            wounds.setAnchor("right", "arcanewardhp", "left", "relative", -10)
+            hptotal.setAnchor("right", "arcanewardhp", "left", "relative", -10)
+            hptemp.setAnchor("right", "arcanewardhp", "left", "relative", -10)
         end
-    else
+	else
+        arcanewardhp.setVisible(false)
+		friendfoe.setAnchor("right", "rightanchor", "left", "relative", -13)
         if ArcaneWard.hasCA() then
-            initresult.setAnchor("right", "rightanchor", "left", "relative", 25)
-            wounds.setAnchor("right", "healthbase", "left", "absolute", 70)
-            hptotal.setAnchor("right", "healthbase", "left", "absolute", 110)
-            hptemp.setAnchor("right", "healthbase", "left", "absolute", 150)
+            wounds.setAnchor("right", "friendfoe", "left", "relative", -10)
+            hptotal.setAnchor("right", "friendfoe", "left", "relative", -10)
+            hptemp.setAnchor("right", "friendfoe", "left", "relative", -10)
+        end
+        if bShow then
+            healthbase.setAnchoredWidth("150")
         else
-            initresult.setAnchor("right", "rightanchor", "left", "relative", 25)
-            hptotal.setAnchor("right", "healthbase", "left", "absolute", 70)
-            hptemp.setAnchor("right", "healthbase", "left", "absolute", 110)
-            wounds.setAnchor("right", "healthbase", "left", "absolute", 150)
+            healthbase.setAnchoredWidth("110")
         end
     end
 end

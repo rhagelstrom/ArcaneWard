@@ -18,16 +18,14 @@
 
 	<windowclass name="client_ct_entry" merge="join">
 		<sheetdata>
-			<number_clientct_arcaneward name="arcanewardhp" insertbefore="initresult" />
-			<number_clientct_wounds name="wounds">
-				<anchored>
-					<right offset="-40" />
+			<number_clientct_arcaneward name="arcanewardhp" insertbefore="friendfoe">
+				<anchored to="rightanchor" width="30" height="20">
+					<top />
+					<right anchor="left" relation="relative" offset="-10" />
 				</anchored>
-			</number_clientct_wounds>
-
-			<base_clientct_health name="healthbase">
-				<anchored width="150" />
-			</base_clientct_health>
+				<color>a063eb</color>
+				<hideonvalue value="0" />
+			</number_clientct_arcaneward>
 		</sheetdata>
 		<script file="ct/scripts/client_ct_entry.lua" />
 

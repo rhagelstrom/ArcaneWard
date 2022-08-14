@@ -54,19 +54,12 @@ function showArcaneWard()
 	local sShowAW = OptionsManager.getOption("ARCANE_WARD_SHOW_CT");
     local bShow = (sShowAW == "on")
 	arcanewardhp.setVisible(bShow)
-	if bShow and ArcaneWard.hasCA() then
-			hptemp.setAnchor("right", "rightanchor", "left", "relative", -50)
-	elseif ArcaneWard.hasCA() then
-			hptemp.setAnchor("right", "rightanchor", "left", "relative", -10)
+
+	if bShow then
+		arcanewardhp.setAnchor("right", "rightanchor", "left", "relative", -40)
+		friendfoe.setAnchor("right", "rightanchor", "left", "relative", 60)
+	else
+		friendfoe.setAnchor("right", "rightanchor", "left", "relative", -10)
 	end
 
-	if ArcaneWard.hasLA() and ArcaneWard.hasCG() and ArcaneWard.hasCA() then
-		arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -283)
-	elseif ArcaneWard.hasLA() and ArcaneWard.hasCA() then
-		arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -263)
-	elseif ArcaneWard.hasCG() and ArcaneWard.hasCA() then
-			arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -248)
-	elseif ArcaneWard.hasCA() then
-		arcanewardhp.setAnchor("right", "rightanchor", "left", "absolute", -228)
-	end
 end

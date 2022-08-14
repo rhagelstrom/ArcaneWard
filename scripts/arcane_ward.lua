@@ -18,20 +18,20 @@
 local applyDamage = nil
 local messageDamage = nil
 local rest = nil
-local addNPCtoCT = nil
+local onNPCPostAdd = nil
 local extensions = {}
 
 function onInit()
 	applyDamage = ActionDamage.applyDamage
 	messageDamage = ActionDamage.messageDamage
 	rest = CharManager.rest
-	addNPCtoCT= CombatManager.addNPC
 
 	ActionDamage.applyDamage = customApplyDamage
 	ActionDamage.messageDamage = customMessageDamage
 	CharManager.rest = customRest
-	CombatManager.addNPC = customAddNPCtoCT
 
+	onNPCPostAdd = CombatRecordManager.getRecordTypePostAddCallback("npc")
+	CombatRecordManager.setRecordTypePostAddCallback("npc", addNPCtoCT)
 	for index, name in pairs(Extension.getExtensions()) do
 		extensions[name] = index
    end
@@ -62,7 +62,6 @@ function onClose()
 	ActionDamage.applyDamage = applyDamage
 	ActionDamage.messageDamage = messageDamage
 	CharManager.rest = rest
-	CombatManager.addNPC = addNPCtoCT
 end
 
 function hasCA()
@@ -131,7 +130,7 @@ function castAbjuration(nodeActor, nLevel ,sName, bCastasPact)
 
 	local rMessage = ChatManager.createBaseMessage(rActor, DB.getValue(nodeActor,"name"));
 	-- rMessage.secret
-	rMessage.icon = "ArcaneWard"
+	rMessage.icon = "ArcaneWardCast"
 	if bCastasPact then
 		rMessage.text = rMessage.text .. "Begins [CAST] " .. sName .. " [PACT LEVEL " .. nLevel .."] [Arcane Ward: " .. tostring(nAdded) .. sMax .. " ] -> " .. sActivated .. "[to " ..  DB.getValue(nodeActor,"name") .."]"
 	else
@@ -145,13 +144,13 @@ function parseArcaneWard(rActor)
 	local nodeFeatures = nodeActor.getChild("featurelist")
 	local aAWParsed = {}
 	--PCs
-	if nodeFeatures ~= nil and (rActor.sType == "pc" or rActor.sType == "charsheet") then
+	if nodeFeatures and (rActor.sType == "pc" or rActor.sType == "charsheet") then
 		local aFeatures = nodeFeatures.getChildren()
 		for _, nodeFeature in pairs(aFeatures) do
 			local sName = DB.getValue(nodeFeature, "name", "")
 			if sName:upper() == "ARCANE WARD" then
-				sDesc = DB.getValue(nodeFeature, "text", ""):lower()
-				aWords = StringManager.parseWords(sDesc)
+				local sDesc = DB.getValue(nodeFeature, "text", ""):lower()
+				local aWords = StringManager.parseWords(sDesc)
 				local i = 1;
 				while aWords[i] do
 					if StringManager.isWord(aWords[i], "equal") and
@@ -177,7 +176,7 @@ function hasArcaneWard(rActor)
 	local nodeActor = ActorManager.getCreatureNode(rActor)
 	local nodeFeatures = nodeActor.getChild("featurelist")
 	--PCs
-	if nodeFeatures ~= nil and (rActor.sType == "pc" or rActor.sType == "charsheet") then
+	if nodeFeatures and (rActor.sType == "pc" or rActor.sType == "charsheet") then
 		local aFeatures = nodeFeatures.getChildren()
 		for _, nodeFeature in pairs(aFeatures) do
 			local sName = DB.getValue(nodeFeature, "name", "")
@@ -188,7 +187,7 @@ function hasArcaneWard(rActor)
 	end
 	--NPCs
 	local nodeTraits = nodeActor.getChild("traits")
-	if nodeTraits ~= nil and rActor.sType == "npc" then
+	if nodeTraits and rActor.sType == "npc" then
 		local aTraits = nodeTraits.getChildren()
 		for _, nodeTrait in pairs(aTraits) do
 			local sName = DB.getValue(nodeTrait, "name", "")
@@ -226,6 +225,7 @@ end
 function removeAbsorbed(sDamage, nAbsorbed)
 	local result = {}
 	local regex = ("([^%s]+)"):format("[TY")
+
 	for each in sDamage:gmatch(regex) do
 	   table.insert(result, each)
 	end
@@ -563,9 +563,9 @@ function getSpellSlots(nodeChar, nLevel)
     return aSpellSlots
 end
 
-function customAddNPCtoCT(sClass, nodeNPC, sName)
-	local nodeCTEntry  = addNPCtoCT(sClass, nodeNPC, sName)
-	local nodeFeatures = nodeCTEntry.getChild("traits")
+function addNPCtoCT(tCustom)
+	onNPCPostAdd(tCustom)
+	local nodeFeatures = tCustom.nodeCT.getChild("traits")
 	local aFeatures = nodeFeatures.getChildren()
 	for _, nodeFeature in pairs(aFeatures) do
 		local sFeatureName = DB.getValue(nodeFeature, "name", "")
@@ -577,15 +577,14 @@ function customAddNPCtoCT(sClass, nodeNPC, sName)
 			while aWords[i] do
 				if StringManager.isWord(aWords[i], "hit") and StringManager.isWord(aWords[i+1], "points") then
 					nArcaneWard = tonumber(aWords[i-1])
-					DB.setValue(nodeCTEntry, "arcaneward", "number", 1)
-					DB.setValue(nodeCTEntry, "arcanewardhp", "number", nArcaneWard)
+					DB.setValue(tCustom.nodeCT, "arcaneward", "number", 1)
+					DB.setValue(tCustom.nodeCT, "arcanewardhp", "number", nArcaneWard)
 					break
 				end
 				i = i + 1
 			end
 		end
 	end
-	return nodeCTEntry
 end
 
 --Modified from coreRPG to also return the CTNode whom applied the effect
