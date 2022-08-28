@@ -5,7 +5,7 @@
 		<!-- Loadorder has to be 141 to sit between CA and SAI -->
     	<loadorder>141</loadorder>
 		<name>Feature: Arcane Ward</name>
-		<version>1.7</version>
+		<version>1.8</version>
 		<author>Ryan Hagelstrom</author>
 		<description>Automates Arcane Ward Trait</description>
 		<ruleset>
