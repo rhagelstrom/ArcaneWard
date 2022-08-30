@@ -566,22 +566,24 @@ end
 function addNPCtoCT(tCustom)
 	onNPCPostAdd(tCustom)
 	local nodeFeatures = tCustom.nodeCT.getChild("traits")
-	local aFeatures = nodeFeatures.getChildren()
-	for _, nodeFeature in pairs(aFeatures) do
-		local sFeatureName = DB.getValue(nodeFeature, "name", "")
-		if sFeatureName:upper() == "ARCANE WARD" then
-			local sDesc =  DB.getValue(nodeFeature, "desc", "")
-			local aWords = StringManager.parseWords(sDesc)
-			local nArcaneWard = 0
-			local i = 1
-			while aWords[i] do
-				if StringManager.isWord(aWords[i], "hit") and StringManager.isWord(aWords[i+1], "points") then
-					nArcaneWard = tonumber(aWords[i-1])
-					DB.setValue(tCustom.nodeCT, "arcaneward", "number", 1)
-					DB.setValue(tCustom.nodeCT, "arcanewardhp", "number", nArcaneWard)
-					break
+	if nodeFeatures then
+		local aFeatures = nodeFeatures.getChildren()
+		for _, nodeFeature in pairs(aFeatures) do
+			local sFeatureName = DB.getValue(nodeFeature, "name", "")
+			if sFeatureName:upper() == "ARCANE WARD" then
+				local sDesc =  DB.getValue(nodeFeature, "desc", "")
+				local aWords = StringManager.parseWords(sDesc)
+				local nArcaneWard = 0
+				local i = 1
+				while aWords[i] do
+					if StringManager.isWord(aWords[i], "hit") and StringManager.isWord(aWords[i+1], "points") then
+						nArcaneWard = tonumber(aWords[i-1])
+						DB.setValue(tCustom.nodeCT, "arcaneward", "number", 1)
+						DB.setValue(tCustom.nodeCT, "arcanewardhp", "number", nArcaneWard)
+						break
+					end
+					i = i + 1
 				end
-				i = i + 1
 			end
 		end
 	end
