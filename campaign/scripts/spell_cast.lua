@@ -8,7 +8,7 @@ function onInit()
         super.onInit()
     end
     if ArcaneWard.hasSAI() then
-        setAnchor("left", "components_text_label", "right", "relative")
+        setAnchor("left", "additional_info", "right", "relative")
     end
     OptionsManager.registerCallback("ARCANE_WARD_SPELL_CAST_GAME", optionChange)
     OptionsManager.registerCallback("ARCANE_WARD_SPELL_CAST", optionChange)
