@@ -1,7 +1,7 @@
 # Arcane Ward
 
-**Current Version:** 1.9
-**Updated::** 08/30/22
+**Current Version:** 1.10
+**Updated::** 09/19/22
 
 Arcane Ward is Fantasy Grounds extension for 5E that automates the School of Abjuration trait Arcane Ward. Also mostly automates legacy NPCs with the trait Arcane Ward. This extension also helps automate and track spell/pact slot usage. This extension is useful even if no one in the party is an Abjuration Wizard.
 
@@ -10,9 +10,9 @@ Arcane Ward is Fantasy Grounds extension for 5E that automates the School of Abj
 - Holding control and clicking the cast/arcane ward button will switch between Spell Slots and Pact Magic Slots. Must have Spellcasting and Pact Magic Features.
 
 **Notes:**
-- A PC character must have the feature "spellcasting" for the cast buttons to appear. 
-- A Warlock must have the feature "pact magic" for the cast buttons to appear for pact magic. 
-- An Abjuration Wizard must have both features "spellcasting" and "arcane ward". 
+- A PC character must have the feature "spellcasting" for the cast buttons to appear.
+- A Warlock must have the feature "pact magic" for the cast buttons to appear for pact magic.
+- An Abjuration Wizard must have both features "spellcasting" and "arcane ward".
 - If a character has the feature "arcane ward", the cast powers buttons will always be enabled regardless of the option settings.
 ## Options:
 | Name| Default | Options | Notes |

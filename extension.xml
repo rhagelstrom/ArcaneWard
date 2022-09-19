@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <root release="3.0" version="3">
-	<announcement text="Arcane Ward v1.9\rby Ryan Hagelstrom\rContribution Zarestia 2022" font="emotefont" icon="ArcaneWard"/>
+	<announcement text="Arcane Ward v1.10\rby Ryan Hagelstrom\rContribution Zarestia 2022" font="emotefont" icon="ArcaneWard"/>
 	<properties>
 		<!-- Loadorder has to be 141 to sit between CA and SAI -->
     	<loadorder>141</loadorder>
 		<name>Feature: Arcane Ward</name>
-		<version>1.9</version>
+		<version>1.10</version>
 		<author>Ryan Hagelstrom</author>
 		<description>Automates Arcane Ward Trait</description>
 		<ruleset>

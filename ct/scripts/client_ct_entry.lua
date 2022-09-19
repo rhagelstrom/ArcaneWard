@@ -38,17 +38,17 @@ function updateHealthDisplay()
 		friendfoe.setAnchor("right", "rightanchor", "left", "relative", 60)
         healthbase.setAnchoredWidth("110")
         if ArcaneWard.hasCA() then
-            wounds.setAnchor("right", "friendfoe", "left", "relative", -130)
-            hptotal.setAnchor("right", "friendfoe", "left", "relative", 70)
-            hptemp.setAnchor("right", "friendfoe", "left", "relative", 110)
+            wounds.setAnchor("right", "friendfoe", "left", "relative", -10)
+            hptotal.setAnchor("right", "friendfoe", "left", "relative", -10)
+            hptemp.setAnchor("right", "friendfoe", "left", "relative", -50)
         end
 	else
         arcanewardhp.setVisible(false)
 		friendfoe.setAnchor("right", "rightanchor", "left", "relative", -13)
         if ArcaneWard.hasCA() then
-            wounds.setAnchor("right", "friendfoe", "left", "relative", -90)
-            hptotal.setAnchor("right", "friendfoe", "left", "relative", 70)
-            hptemp.setAnchor("right", "friendfoe", "left", "relative", 110)
+            wounds.setAnchor("right", "friendfoe", "left", "relative", -10)
+            hptotal.setAnchor("right", "friendfoe", "left", "relative", -10)
+            hptemp.setAnchor("right", "friendfoe", "left", "relative", -10)
         end
         if bShow then
             healthbase.setAnchoredWidth("150")
