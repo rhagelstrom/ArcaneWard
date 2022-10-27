@@ -260,7 +260,7 @@ end
 
 
 function customApplyDamage(rSource, rTarget, rRoll)
-	if not rSource or not rTarget or not rRoll then
+	if not rSource or not rTarget or not rRoll or rRoll.sType ~= "damage" then
 		return applyDamage(rSource, rTarget, rRoll)
 	end
 	-- Get the effects on source, determine. is arcane ward. determine source
@@ -268,11 +268,13 @@ function customApplyDamage(rSource, rTarget, rRoll)
 	if next(aArcaneWardEffects) then
 		local ctEntries = CombatManager.getCombatantNodes()
 		for _, nodeCT in pairs(ctEntries) do
-			local rActor = ActorManager.resolveActor(nodeCT)
-			if hasArcaneWard(rActor) then
-				for _, rEffect in pairs(aArcaneWardEffects) do
-					if rEffect.source_name == rActor.sCTNode then
-						arcaneWard(rSource, rActor, rRoll)
+			if not CombatManager.isCTHidden(nodeCT) then
+				local rActor = ActorManager.resolveActor(nodeCT)
+				if hasArcaneWard(rActor) then
+					for _, rEffect in pairs(aArcaneWardEffects) do
+						if rEffect.source_name == rActor.sCTNode then
+							arcaneWard(rSource, rActor, rRoll)
+						end
 					end
 				end
 			end
