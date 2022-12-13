@@ -220,30 +220,19 @@ function arcaneWard(rSource, rTarget, rRoll)
 	end
 end
 
---this is kind of a mess but I'm done with string manip for the day
---fix this up nice some other time (yeah right)
-function removeAbsorbed(sDamage, nAbsorbed)
-	local result = {}
-	local regex = ("([^%s]+)"):format("[TY")
 
-	for each in sDamage:gmatch(regex) do
-	   table.insert(result, each)
-	end
-	local sNewDamage = ""
-	for _, sClause in pairs(result) do
-		if sClause:match("PE:") then
-			sClause = "[TY" .. sClause
-			local nClauseDamage = tonumber(sClause:match("=%d+%)"):match("%d+"))
-			if nAbsorbed >= nClauseDamage then
-				nAbsorbed = nAbsorbed - nClauseDamage
-			else
-				nClauseDamage = nClauseDamage - nAbsorbed
-				nAbsorbed = 0
-				sClause = sClause:gsub("=%d+%)", "=" .. tostring(nClauseDamage) .. ")")
-				sNewDamage = sNewDamage .. sClause
-			end
+function removeAbsorbed(sDamage, nAbsorbed)
+	local sNewDamage  = sDamage:gsub("%s*%[TYPE:[^%]]*%]%s*", "")
+	for sType in sDamage:gmatch("%[TYPE:[^%]]*%]") do
+		local sParsedDamage = sType:match("%d+%)%]$"):gsub("%)%]$", "")
+		local nDamage  = tonumber(sParsedDamage)
+		if nAbsorbed >= nDamage then
+			nAbsorbed = nAbsorbed - nDamage
 		else
-			sNewDamage = sNewDamage .. sClause -- not damage clause so it passes though
+			nDamage = nDamage - nAbsorbed
+			nAbsorbed = 0
+			sType = sType:gsub("=%d+%)", "=" .. tostring(nDamage) .. ")")
+			sNewDamage = sNewDamage .. " " .. sType
 		end
 	end
 	return sNewDamage
