@@ -9,7 +9,8 @@ function onInit()
     end
     OptionsManager.registerCallback("ARCANE_WARD_SPELL_CAST_GAME", optionChange)
     OptionsManager.registerCallback("ARCANE_WARD_SPELL_CAST", optionChange)
-
+    local node = getDatabaseNode()
+    DB.addHandler(node.getPath() .. ".group", "onUpdate", onDisplayChanged);
     windowlist.onChildWindowAdded(self)
     --Don't show button by default until we are sure we should
     header.subwindow.button_abjuration.setVisible(false)
@@ -17,6 +18,8 @@ function onInit()
 end
 
 function onClose()
+    local node = getDatabaseNode()
+    DB.removeHandler(node.getPath() .. ".group" , "onUpdate", onDisplayChanged)
     OptionsManager.unregisterCallback("ARCANE_WARD_SPELL_CAST_GAME", optionChange)
     OptionsManager.unregisterCallback("ARCANE_WARD_SPELL_CAST", optionChange)
     optionChange(true)
@@ -113,7 +116,7 @@ function onDisplayChanged()
     local bProcess = false
     local aCastInfo
 
-	for _,vGroup in pairs(DB.getChildren(node.getParent().getParent(), "powergroup")) do
+	for _,vGroup in pairs(DB.getChildren(node, "...powergroup")) do
 		local sPowerGroup = DB.getValue(vGroup, "name", "");
         if sPowerGroup == sGroup and DB.getValue(vGroup, "castertype", "") == "memorization" then
             bProcess = true
@@ -121,7 +124,6 @@ function onDisplayChanged()
             break
         end
 	end
-
     if sDisplayMode == "summary"then
         header.subwindow.button_abjuration.setVisible(false);
         header.subwindow.arcaneward_text_label.setVisible(false);
