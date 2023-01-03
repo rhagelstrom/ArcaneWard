@@ -17,8 +17,8 @@
 		<includefile source="campaign/record_power.xml" />
 		<includefile source="campaign/template_abjuration.xml" />
 		<includefile source="campaign/record_char_main.xml" />
-		<includefile source="ct/ct_host.xml" />
-		<includefile source="ct/ct_client.xml" />
+		<includefile source="ct/ct_host_entry.xml" />
+		<includefile source="ct/ct_client_entry.xml" />
 		<includefile source="graphics/graphics.xml" />
 		<includefile source="strings/strings_arcane_ward.xml" />
 	</base>
