@@ -1,0 +1,12 @@
+<root>
+	<windowclass name="ct_entry" merge="join">
+		<script file="ct/scripts/ct_entry.lua" />
+		<sheetdata>
+			<hnx name="arcanewardhp" />
+
+			<number_ct_crosslink name="hptemp" merge="join">
+				<script file="ct/scripts/arcane_ward_field.lua" />
+			</number_ct_crosslink>
+		</sheetdata>
+	</windowclass>
+</root>
