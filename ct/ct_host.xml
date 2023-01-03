@@ -1,43 +1,11 @@
 <root>
-	<windowclass name="combattracker_host" merge="join">
-		<sheetdata>
-			<!-- <label_ct name="label_init">
-				<right offset="343,-3"/>
-			</label_ct> -->
-
-			<label_ct name="label_arcaneward" insertbefore="label_wounds">
-				<anchored to="header_labels" position="insidetopright" offset="138,3" width="30" />
-				<static textres="ct_label_arcaneward" />
-				<tooltip textres="ct_tooltip_arcaneward" />
-				<center />
-			</label_ct>
-		</sheetdata>
-		<script file="ct/scripts/combattracker_host.lua" />
-	</windowclass>
-
 	<windowclass name="ct_entry" merge="join">
 		<script file="ct/scripts/ct_entry.lua" />
 		<sheetdata>
-			<number_ct_crosslink name="arcanewardhp" insertbefore="friendfoe">
-				<anchored to="rightanchor" width="30" height="20">
-					<top />
-					<right anchor="left" relation="relative" offset="-10" />
-				</anchored>
-				<color>a063eb</color>
-				<hideonvalue value="0" />
-				<script>
-					function handleDrop(draginfo)
-						if draginfo.getNumberData() &gt; 0 then
-							setValue(draginfo.getNumberData());
-						else
-							setValue(getValue() + draginfo.getNumberData());
-						end
-					end
+			<hnx name="arcanewardhp" />
 
-					function update()
-						window.onHealthChanged();
-					end
-				</script>
+			<number_ct_crosslink name="hptemp" merge="join">
+				<script file="ct/scripts/arcane_ward_field.lua" />
 			</number_ct_crosslink>
 		</sheetdata>
 	</windowclass>

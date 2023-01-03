@@ -6,28 +6,11 @@
 -->
 
 <root>
-	<windowclass name="combattracker_client" merge="join">
-		<sheetdata>
-			<label_ct_right name="label_arcaneward" insertbefore="label_wounds">
-				<static textres="ct_label_arcaneward" />
-				<tooltip textres="ct_tooltip_arcaneward" />
-			</label_ct_right>
-		</sheetdata>
-		<script file="ct/scripts/combattracker_client.lua" />
-	</windowclass>
-
 	<windowclass name="client_ct_entry" merge="join">
 		<sheetdata>
-			<number_clientct_arcaneward name="arcanewardhp" insertbefore="friendfoe">
-				<anchored to="rightanchor" width="30" height="20">
-					<top />
-					<right anchor="left" relation="relative" offset="-10" />
-				</anchored>
-				<color>a063eb</color>
-				<hideonvalue value="0" />
-			</number_clientct_arcaneward>
+			<number_clientct_hptemp name="hptemp" merge="join">
+				<script file="ct/scripts/arcane_ward_field.lua" />
+			</number_clientct_hptemp>
 		</sheetdata>
-		<script file="ct/scripts/client_ct_entry.lua" />
-
 	</windowclass>
 </root>

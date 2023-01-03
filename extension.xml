@@ -3,24 +3,23 @@
 	<announcement text="Arcane Ward v1.13\rby Ryan Hagelstrom\rContribution Zarestia 2022" font="emotefont" icon="ArcaneWard"/>
 	<properties>
 		<!-- Loadorder has to be 141 to sit between CA and SAI -->
-    	<loadorder>141</loadorder>
+		<loadorder>141</loadorder>
 		<name>Feature: Arcane Ward</name>
 		<version>1.13</version>
 		<author>Ryan Hagelstrom</author>
 		<description>Automates Arcane Ward Trait</description>
 		<ruleset>
-            <name>5E</name>
+			<name>5E</name>
 		</ruleset>
 	</properties>
 	<base>
-    	<script name="ArcaneWard" file="scripts/arcane_ward.lua" />
+		<script name="ArcaneWard" file="scripts/arcane_ward.lua" />
 		<includefile source="campaign/record_power.xml" />
 		<includefile source="campaign/template_abjuration.xml" />
 		<includefile source="campaign/record_char_main.xml" />
 		<includefile source="ct/ct_host.xml" />
 		<includefile source="ct/ct_client.xml" />
-		<includefile source="ct/template_ct.xml" />
 		<includefile source="graphics/graphics.xml" />
 		<includefile source="strings/strings_arcane_ward.xml" />
-  	</base>
+	</base>
 </root>
