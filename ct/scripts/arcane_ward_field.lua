@@ -13,11 +13,13 @@ function onInit()
 
 	widgetWard = addTextWidget({
 		font = "sheettext", text = "0", position="topright", x = 3, y = 1,
-		frame = "tempmodmini", frameoffset = "3,1,6,3", color="A063EB"
+		frame = "tempmodmini", frameoffset = "3,1,6,3"
 	});
 	widgetWard.setVisible(false);
 
-	nodeWard = window.getDatabaseNode().createChild("arcanewardhp", "number");
+	local nodeActor = ActorManager.getCreatureNode(window.getDatabaseNode());
+	local sNodeString = ArcaneWard.getDBString(nodeActor);
+	nodeWard = DB.getChild(nodeActor, sNodeString);
 	if nodeWard then
 		nodeWard.onUpdate = updateWidget;
 		updateWidget(nodeWard);

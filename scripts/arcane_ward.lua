@@ -46,11 +46,6 @@ function onInit()
    { labels = "option_val_on", values = "on",
 	   baselabel = "option_val_off", baseval = "off", default = "off" });
 
-	OptionsManager.registerOption2("ARCANE_WARD_SHOW_CT", true, "option_arcane_ward",
-	"option_show_aw_ct", "option_entry_cycler",
-	{ labels = "option_val_on", values = "on",
-		   baselabel = "option_val_off", baseval = "off", default = "off" });
-
 	OptionsManager.registerOption2("ARCANE_WARD_PACT", true, "option_arcane_ward",
 	"option_pact_aw", "option_entry_cycler",
 	{ labels = "option_val_on", values = "on",

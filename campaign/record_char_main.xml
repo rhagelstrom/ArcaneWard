@@ -2,96 +2,9 @@
 <root>
 	<windowclass name="charsheet_main" merge="join">
 		<sheetdata>
-			<label_charframetop name="healthtitle">
-				<anchored height="20">
-					<top anchor="bottom" offset="-120" />
-					<left offset="85" />
-					<right offset="-85" />
-				</anchored>
-				<icons>char_stats</icons>
-			</label_charframetop>
-
-			<number_charwounds name="wounds" source="hp.wounds">
-				<anchored >
-					<left anchor="center" offset="-108" />
-				</anchored>
-			</number_charwounds>
-
-			<basicnumber name="arcaneward_hp" source="hp.arcaneward" >
-				<anchored to="temphp" position="righthigh" offset="70,0"  width="40" height="30"/>
-				<font>reference-b-large</font>
-				<color>a063eb</color>
-				<description textres="label_arcaneward" />
-				<hideonvalue>0</hideonvalue>
-				<script>
-					function onInit()
-						if super and super.onInit then
-							super.onInit();
-						end
-						OptionsManager.registerCallback("ARCANE_WARD_SHOW_CT", showArcaneWard)
-
-						if ArcaneWard.hasCA() then
-							setAnchor("left", "temphp", "right", "relative", 70)
-						else
-							setAnchor("left", "temphp", "right", "relative", 15)
-						end
-						showArcaneWard()
-					end
-
-					function onClose()
-						if super and super.onInit then
-							super.onInit();
-						end
-						OptionsManager.unregisterCallback("ARCANE_WARD_SHOW_CT", showArcaneWard)
-					end
-
-					function showArcaneWard()
-						local sShowAW = OptionsManager.getOption("ARCANE_WARD_SHOW_CT");
-						local bShow = (sShowAW == "on")
-						setVisible(bShow)
-					end
-					function onUpdated(bUser, previousValue, newValue)
-						if bUser then
-							HpManager.recalculateTotal(window.getDatabaseNode());
-						end
-						window.onHealthChanged();
-					end
-					function onDrop(x, y, draginfo)
-						if draginfo.isType("number") then
-							setValue(getValue() + draginfo.getNumberData());
-							return true;
-						end
-					end
-				</script>
+			<basicnumber name="temphp" merge="join">
+				<script file="ct/scripts/arcane_ward_field.lua" />
 			</basicnumber>
-
-			<label_charfieldtop name="awhp_label">
-				<script>
-					function onInit()
-						if super and super.onInit then
-							super.onInit();
-						end
-						OptionsManager.registerCallback("ARCANE_WARD_SHOW_CT", showArcaneWard)
-						showArcaneWard()
-					end
-
-					function onClose()
-						if super and super.onInit then
-							super.onInit();
-						end
-						OptionsManager.unregisterCallback("ARCANE_WARD_SHOW_CT", showArcaneWard)
-					end
-
-					function showArcaneWard()
-						local sShowAW = OptionsManager.getOption("ARCANE_WARD_SHOW_CT");
-						local bShow = (sShowAW == "on")
-						setVisible(bShow)
-					end
-				</script>
-				<anchored to="arcaneward_hp" offset="5,15" />
-				<static textres="char_label_arcaneward" />
-				<tooltip textres="ct_tooltip_arcaneward" />
-			</label_charfieldtop>
 		</sheetdata>
 	</windowclass>
 </root>
