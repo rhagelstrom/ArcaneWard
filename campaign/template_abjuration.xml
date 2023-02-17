@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <root>
-<template name="button_abjuration"  >
-    <buttoncontrol>
-            <anchored width="20" height="20" >
-            		<top offset="2" />
-					<left parent="name" anchor="right" relation="relative" offset="10"/>
+	<template name="button_abjuration">
+		<buttoncontrol>
+			<anchored width="20" height="20">
+				<top offset="2" />
+				<left parent="name" anchor="right" relation="relative" offset="10" />
 			</anchored>
 			<icon normal="button_arcaneward" pressed="button_arcaneward_pressed" />
-            <tooltip textres="abjuration_label_resource" />
-            <script file="campaign/scripts/spell_cast.lua" />
-        </buttoncontrol>
+			<tooltip textres="abjuration_label_resource" />
+			<script file="campaign/scripts/spell_cast.lua" />
+		</buttoncontrol>
 	</template>
 </root>
