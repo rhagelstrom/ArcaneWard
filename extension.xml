@@ -3,7 +3,7 @@
 	<announcement text="Arcane Ward v1.15\rby Ryan Hagelstrom 2022-2023\rContribution MeAndUnique,Zarestia" font="emotefont" icon="ArcaneWard" />
 	<properties>
 		<!-- Loadorder has to be 141 to sit between CA and SAI -->
-		<loadorder>141</loadorder>
+		<loadorder>143</loadorder>
 		<name>Feature: Arcane Ward</name>
 		<version>1.15</version>
 		<author>Ryan Hagelstrom</author>
