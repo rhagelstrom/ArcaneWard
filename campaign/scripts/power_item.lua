@@ -123,18 +123,15 @@ function onDisplayChanged()
     end
     if sDisplayMode == 'summary' then
         header.subwindow.button_abjuration.setVisible(false);
-        header.subwindow.arcaneward_text_label.setVisible(false);
     elseif sDisplayMode == 'action' and bProcess and (aCastInfo.bSpellcasting or aCastInfo.bPactMagic) and aCastInfo.nLevel > 0 then
         setCastButton(aCastInfo);
     else
         header.subwindow.button_abjuration.setVisible(false);
-        header.subwindow.arcaneward_text_label.setVisible(false);
     end
 end
 
 function setCastButton(aCastInfo)
     if aCastInfo.bHasArcaneWard or OptionsManager.isOption('ARCANE_WARD_SPELL_CAST_GAME', 'on') or OptionsManager.isOption('ARCANE_WARD_SPELL_CAST', 'on') then
-        header.subwindow.arcaneward_text_label.setVisible(true);
         header.subwindow.button_abjuration.setVisible(true);
 
         header.subwindow.button_abjuration.setEnabled(true);
@@ -182,7 +179,6 @@ function setCastButton(aCastInfo)
             end
         end
     else
-        header.subwindow.arcaneward_text_label.setVisible(false);
         header.subwindow.button_abjuration.setVisible(false);
     end
 end

@@ -3,18 +3,13 @@
 	<windowclass name="power_item_header" merge="join">
 		<sheetdata>
 			<button_abjuration name="button_abjuration" insertbefore="actionsmini" />
-			<windowlist name="actionsmini">
-				<anchored>
-					<top offset="2" />
-					<left parent="arcaneward_text_label" anchor="right" />
+			<list_poweraction_mini name="actionsmini">
+				<anchored to="rightanchor">
+					<top />
+					<right anchor="left" relation="relative" offset="-5" />
+					<left parent="button_abjuration" anchor="right" offset="3" />
 				</anchored>
-			</windowlist>
-			<label name="arcaneward_text_label" insertbefore="group">
-				<anchored width="25">
-					<top offset="2" />
-					<left parent="name" anchor="right" offset="0" />
-				</anchored>
-			</label>
+			</list_poweraction_mini>
 		</sheetdata>
 	</windowclass>
 	<windowclass name="power_item" merge="join">
