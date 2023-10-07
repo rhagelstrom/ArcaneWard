@@ -2,6 +2,11 @@
 --	  	Copyright © 2022
 --	  	This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 --	  	https://creativecommons.org/licenses/by-sa/4.0/
+--
+-- luacheck: globals ArcaneWard onInit onClose hasCA hasLA hasCG hasSAI castAbjuration parseArcaneWard hasArcaneWard arcaneWard
+-- luacheck: globals removeAbsorbed getDBString customApplyDamage customMessageDamage customRest getCurrentCastInfo
+-- luacheck: globals resetCastInfo getNextSpellSlot boolToNumber numberToBool
+-- luacheck: globals getMagicTraits getPactMagicSlots expendSpellSlot getSpellSlots addNPCtoCT getEffectsByType
 -- Sage Advice
 -- https://dnd.wizards.com/articles/features/sageadvice_july2015
 -- How does Arcane Ward interact with temporary hit points and damage resistance that an abjurer might have?
@@ -33,14 +38,31 @@ function onInit()
         extensions[name] = index;
     end
 
-    OptionsManager.registerOption2('ARCANE_WARD_SPELL_CAST_GAME', false, 'option_arcane_ward', 'option_spell_cast_game', 'option_entry_cycler',
-                                   {labels = 'option_val_on', values = 'on', baselabel = 'option_val_off', baseval = 'off', default = 'off'});
+    OptionsManager.registerOption2('ARCANE_WARD_SPELL_CAST_GAME', false, 'option_arcane_ward', 'option_spell_cast_game',
+                                   'option_entry_cycler', {
+        labels = 'option_val_on',
+        values = 'on',
+        baselabel = 'option_val_off',
+        baseval = 'off',
+        default = 'off'
+    });
 
-    OptionsManager.registerOption2('ARCANE_WARD_SPELL_CAST', true, 'option_arcane_ward', 'option_spell_cast', 'option_entry_cycler',
-                                   {labels = 'option_val_on', values = 'on', baselabel = 'option_val_off', baseval = 'off', default = 'off'});
+    OptionsManager.registerOption2('ARCANE_WARD_SPELL_CAST', true, 'option_arcane_ward', 'option_spell_cast',
+                                   'option_entry_cycler', {
+        labels = 'option_val_on',
+        values = 'on',
+        baselabel = 'option_val_off',
+        baseval = 'off',
+        default = 'off'
+    });
 
-    OptionsManager.registerOption2('ARCANE_WARD_PACT', true, 'option_arcane_ward', 'option_pact_aw', 'option_entry_cycler',
-                                   {labels = 'option_val_on', values = 'on', baselabel = 'option_val_off', baseval = 'off', default = 'off'});
+    OptionsManager.registerOption2('ARCANE_WARD_PACT', true, 'option_arcane_ward', 'option_pact_aw', 'option_entry_cycler', {
+        labels = 'option_val_on',
+        values = 'on',
+        baselabel = 'option_val_off',
+        baseval = 'off',
+        default = 'off'
+    });
 
 end
 
@@ -118,11 +140,11 @@ function castAbjuration(nodeActor, nLevel, sName, bCastasPact)
     -- rMessage.secret
     rMessage.icon = 'ArcaneWardCast';
     if bCastasPact then
-        rMessage.text = rMessage.text .. 'Begins [CAST] ' .. sName .. ' [PACT LEVEL ' .. nLevel .. '] [Arcane Ward: ' .. tostring(nAdded) .. sMax .. ' ] -> ' ..
-                            sActivated .. '[to ' .. DB.getValue(nodeActor, 'name') .. ']'
+        rMessage.text = rMessage.text .. 'Begins [CAST] ' .. sName .. ' [PACT LEVEL ' .. nLevel .. '] [Arcane Ward: ' ..
+                            tostring(nAdded) .. sMax .. ' ] -> ' .. sActivated .. '[to ' .. DB.getValue(nodeActor, 'name') .. ']'
     else
-        rMessage.text = rMessage.text .. 'Begins [CAST] ' .. sName .. ' [LEVEL ' .. nLevel .. '] [Arcane Ward: ' .. tostring(nAdded) .. sMax .. ' ] -> ' ..
-                            sActivated .. '[to ' .. DB.getValue(nodeActor, 'name') .. ']'
+        rMessage.text = rMessage.text .. 'Begins [CAST] ' .. sName .. ' [LEVEL ' .. nLevel .. '] [Arcane Ward: ' ..
+                            tostring(nAdded) .. sMax .. ' ] -> ' .. sActivated .. '[to ' .. DB.getValue(nodeActor, 'name') .. ']'
     end
     Comm.deliverChatMessage(rMessage);
 end
@@ -141,8 +163,8 @@ function parseArcaneWard(rActor)
                 local aWords = StringManager.parseWords(sDesc);
                 local i = 1;
                 while aWords[i] do
-                    if StringManager.isWord(aWords[i], 'equal') and StringManager.isWord(aWords[i + 1], 'to') and StringManager.isWord(aWords[i + 2], 'twice') and
-                        StringManager.isWord(aWords[i + 3], 'your') then
+                    if StringManager.isWord(aWords[i], 'equal') and StringManager.isWord(aWords[i + 1], 'to') and
+                        StringManager.isWord(aWords[i + 2], 'twice') and StringManager.isWord(aWords[i + 3], 'your') then
                         aAWParsed['class'] = aWords[i + 4];
                     elseif StringManager.isWord(aWords[i], '+') and StringManager.isWord(aWords[i + 1], 'your') and
                         StringManager.isWord(aWords[i + 3], 'modifier') then
@@ -276,13 +298,15 @@ function customRest(nodeActor, bLong)
             DB.setValue(nodeActor, 'hp.arcaneward', 'number', 0);
             local rMessage = ChatManager.createBaseMessage(rActor, DB.getValue(nodeActor, 'name'));
             rMessage.icon = 'ArcaneWard';
-            rMessage.text = rMessage.text .. '[Arcane Ward] ->' .. ' [DEACTIVATED]' .. ' [to ' .. DB.getValue(nodeActor, 'name') .. ']';
+            rMessage.text =
+                rMessage.text .. '[Arcane Ward] ->' .. ' [DEACTIVATED]' .. ' [to ' .. DB.getValue(nodeActor, 'name') .. ']';
             Comm.deliverChatMessage(rMessage);
         end
     end
     rest(nodeActor, bLong);
 end
 
+-- luacheck: push ignore 561
 function getCurrentCastInfo(node, bNextSlot, aCastInfo)
     local aRet = {
         bCastasPact = false,
@@ -404,13 +428,15 @@ function getCurrentCastInfo(node, bNextSlot, aCastInfo)
 
     return aRet
 end
+-- luacheck: pop
 
 function resetCastInfo(node, aCastInfo)
     aCastInfo.bCastasRitual = false;
     aCastInfo.bCastasPactRitual = false;
     aCastInfo.nCastLevel = aCastInfo.nLevel;
 
-    if aCastInfo.bSpellcasting and aCastInfo.bPactMagic and OptionsManager.isOption('ARCANE_WARD_PACT', 'on') and aCastInfo.nPactLevel >= aCastInfo.nLevel then
+    if aCastInfo.bSpellcasting and aCastInfo.bPactMagic and OptionsManager.isOption('ARCANE_WARD_PACT', 'on') and
+        aCastInfo.nPactLevel >= aCastInfo.nLevel then
         aCastInfo.bCastasPact = true;
     elseif not aCastInfo.bSpellcasting and aCastInfo.bPactMagic then
         aCastInfo.bCastasPact = true;
@@ -569,7 +595,8 @@ function getEffectsByType(rActor, sEffectCompType, rFilterActor, bTargetedOnly)
     for _, v in pairs(ActorManager.getEffects(rActor)) do
         -- Check active
         local nActive = DB.getValue(v, 'isactive', 0);
-        local bActive = (tEffectCompParams.bIgnoreExpire and (nActive == 1)) or (not tEffectCompParams.bIgnoreExpire and (nActive ~= 0));
+        local bActive = (tEffectCompParams.bIgnoreExpire and (nActive == 1)) or
+                            (not tEffectCompParams.bIgnoreExpire and (nActive ~= 0));
 
         if bActive then
             -- If effect type we are looking for supports targets, then check targeting

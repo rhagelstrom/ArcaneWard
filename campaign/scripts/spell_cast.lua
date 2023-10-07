@@ -2,7 +2,9 @@
 --	  	Copyright © 2022
 --	  	This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 --	  	https://creativecommons.org/licenses/by-sa/4.0/
-
+--
+-- luacheck: globals onInit onClose defaultButton optionChange registerCallbacks unRegisterCallbacks onUpdate setCastToolTip onButtonPress
+-- luacheck: globals setAnchor setTooltipText
 local bCallbacksRegistered = false
 function onInit()
     if super and super.onInit then
@@ -37,7 +39,8 @@ function optionChange(bClose)
     aCastInfo = ArcaneWard.resetCastInfo(node, aCastInfo);
 
     if not bCallbacksRegistered and
-        (OptionsManager.isOption('ARCANE_WARD_SPELL_CAST_GAME', 'on') or OptionsManager.isOption('ARCANE_WARD_SPELL_CAST', 'on') or aCastInfo.bHasArcaneWard) then
+        (OptionsManager.isOption('ARCANE_WARD_SPELL_CAST_GAME', 'on') or OptionsManager.isOption('ARCANE_WARD_SPELL_CAST', 'on') or
+            aCastInfo.bHasArcaneWard) then
         registerCallbacks(aCastInfo);
         bCallbacksRegistered = true;
     end
@@ -143,7 +146,7 @@ function onButtonPress()
         end
         aCastInfo = ArcaneWard.getCurrentCastInfo(node);
     else
-        DB.getChild(node, '...');
+        local nodeActor = DB.getChild(node, '...');
         if aCastInfo.bCastasPact and not aCastInfo.bCastasPactRitual then
             ArcaneWard.expendSpellSlot(DB.getChild(node, '...'), aCastInfo.nPactLevel, true);
         elseif not aCastInfo.bCastasPact and not aCastInfo.bCastasRitual then
@@ -162,7 +165,8 @@ function onButtonPress()
             if aCastInfo.bCastasRitual or aCastInfo.bCastasPactRitutal then
                 rMessage.text = rMessage.text .. 'Begins [CAST] ' .. sName .. ' [AS RITUAL]';
             elseif aCastInfo.bCastasPact then
-                rMessage.text = rMessage.text .. 'Begins [CAST] ' .. sName .. ' [PACT LEVEL ' .. tostring(aCastInfo.nPactLevel) .. ']';
+                rMessage.text = rMessage.text .. 'Begins [CAST] ' .. sName .. ' [PACT LEVEL ' .. tostring(aCastInfo.nPactLevel) ..
+                                    ']';
             else
                 rMessage.text = rMessage.text .. 'Begins [CAST] ' .. sName .. ' [LEVEL ' .. tostring(aCastInfo.nCastLevel) .. ']';
             end

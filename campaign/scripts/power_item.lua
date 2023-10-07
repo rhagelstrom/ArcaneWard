@@ -2,6 +2,9 @@
 --	  	Copyright © 2022
 --	  	This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 --	  	https://creativecommons.org/licenses/by-sa/4.0/
+--
+-- luacheck: globals onInit onClose optionChange registerCallbacks unRegisterCallbacks onUpdate onDisplayChanged
+-- luacheck: globals setCastButton
 local bCallbacksRegistered = false;
 function onInit()
     if super and super.onInit then
@@ -34,11 +37,13 @@ function optionChange(bClose)
     local aCastInfo = ArcaneWard.getCurrentCastInfo(node);
     aCastInfo = ArcaneWard.resetCastInfo(node, aCastInfo);
     if not bCallbacksRegistered and
-        (OptionsManager.isOption('ARCANE_WARD_SPELL_CAST_GAME', 'on') or OptionsManager.isOption('ARCANE_WARD_SPELL_CAST', 'on') or aCastInfo.bHasArcaneWard) then
+        (OptionsManager.isOption('ARCANE_WARD_SPELL_CAST_GAME', 'on') or OptionsManager.isOption('ARCANE_WARD_SPELL_CAST', 'on') or
+            aCastInfo.bHasArcaneWard) then
         registerCallbacks(aCastInfo);
         bCallbacksRegistered = true;
-    elseif (not aCastInfo.bHasArcaneWard and bCallbacksRegistered and OptionsManager.isOption('ARCANE_WARD_SPELL_CAST_GAME', 'off') and
-        OptionsManager.isOption('ARCANE_WARD_SPELL_CAST', 'off')) or (bClose and bCallbacksRegistered) then
+    elseif (not aCastInfo.bHasArcaneWard and bCallbacksRegistered and
+        OptionsManager.isOption('ARCANE_WARD_SPELL_CAST_GAME', 'off') and OptionsManager.isOption('ARCANE_WARD_SPELL_CAST', 'off')) or
+        (bClose and bCallbacksRegistered) then
         unRegisterCallbacks(aCastInfo);
         bCallbacksRegistered = false;
     end
@@ -57,7 +62,8 @@ function registerCallbacks(aCastInfo)
                 DB.addHandler(sNodePath .. '.powermeta.spellslots' .. tostring(i) .. '.used', 'onUpdate', onDisplayChanged);
             end
         else
-            DB.addHandler(sNodePath .. '.powermeta.spellslots' .. tostring(aCastInfo.nLevel) .. '.used', 'onUpdate', onDisplayChanged);
+            DB.addHandler(sNodePath .. '.powermeta.spellslots' .. tostring(aCastInfo.nLevel) .. '.used', 'onUpdate',
+                          onDisplayChanged);
         end
     end
 
@@ -82,7 +88,8 @@ function unRegisterCallbacks(aCastInfo)
                 DB.removeHandler(sNodePath .. '.powermeta.spellslots' .. tostring(i) .. '.used', 'onUpdate', onDisplayChanged);
             end
         else
-            DB.removeHandler(sNodePath .. '.powermeta.spellslots' .. tostring(aCastInfo.nLevel) .. '.used', 'onUpdate', onDisplayChanged);
+            DB.removeHandler(sNodePath .. '.powermeta.spellslots' .. tostring(aCastInfo.nLevel) .. '.used', 'onUpdate',
+                             onDisplayChanged);
         end
     end
 
@@ -131,7 +138,8 @@ function onDisplayChanged()
 end
 
 function setCastButton(aCastInfo)
-    if aCastInfo.bHasArcaneWard or OptionsManager.isOption('ARCANE_WARD_SPELL_CAST_GAME', 'on') or OptionsManager.isOption('ARCANE_WARD_SPELL_CAST', 'on') then
+    if aCastInfo.bHasArcaneWard or OptionsManager.isOption('ARCANE_WARD_SPELL_CAST_GAME', 'on') or
+        OptionsManager.isOption('ARCANE_WARD_SPELL_CAST', 'on') then
         header.subwindow.button_abjuration.setVisible(true);
 
         header.subwindow.button_abjuration.setEnabled(true);
@@ -149,7 +157,8 @@ function setCastButton(aCastInfo)
         else
             if aCastInfo.bNoSpellSlotsAvailable then
                 if aCastInfo.bCastasRitual then
-                    header.subwindow.button_abjuration.setIcons('button_cast_spell_no_slots', 'button_cast_spell_pressed_no_slots');
+                    header.subwindow.button_abjuration
+                        .setIcons('button_cast_spell_no_slots', 'button_cast_spell_pressed_no_slots');
                 else
                     header.subwindow.button_abjuration.setIcons('button_cast_spell_off', 'button_cast_spell_off');
                     header.subwindow.button_abjuration.setEnabled(false);
@@ -158,13 +167,15 @@ function setCastButton(aCastInfo)
                 if aCastInfo.bBaseSlotAvailable then
                     header.subwindow.button_abjuration.setIcons('button_cast_spell', 'button_cast_spell_pressed');
                 else
-                    header.subwindow.button_abjuration.setIcons('button_cast_spell_no_slots', 'button_cast_spell_pressed_no_slots');
+                    header.subwindow.button_abjuration
+                        .setIcons('button_cast_spell_no_slots', 'button_cast_spell_pressed_no_slots');
                 end
             end
             if aCastInfo.bAbjuration and aCastInfo.bHasArcaneWard then
                 if aCastInfo.bNoSpellSlotsAvailable then
                     if aCastInfo.bCastasRitual then
-                        header.subwindow.button_abjuration.setIcons('button_arcaneward_no_slots', 'button_arcaneward_pressed_no_slots');
+                        header.subwindow.button_abjuration.setIcons('button_arcaneward_no_slots',
+                                                                    'button_arcaneward_pressed_no_slots');
                     else
                         header.subwindow.button_abjuration.setIcons('button_arcaneward_off', 'button_arcaneward_off');
                         header.subwindow.button_abjuration.setEnabled(false);
@@ -173,7 +184,8 @@ function setCastButton(aCastInfo)
                     if aCastInfo.bBaseSlotAvailable then
                         header.subwindow.button_abjuration.setIcons('button_arcaneward', 'button_arcaneward_pressed');
                     else
-                        header.subwindow.button_abjuration.setIcons('button_arcaneward_no_slots', 'button_arcaneward_pressed_no_slots');
+                        header.subwindow.button_abjuration.setIcons('button_arcaneward_no_slots',
+                                                                    'button_arcaneward_pressed_no_slots');
                     end
                 end
             end
