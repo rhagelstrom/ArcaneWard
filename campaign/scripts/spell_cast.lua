@@ -4,7 +4,7 @@
 --	  	https://creativecommons.org/licenses/by-sa/4.0/
 --
 -- luacheck: globals onInit onClose defaultButton optionChange registerCallbacks unRegisterCallbacks onUpdate setCastToolTip onButtonPress
--- luacheck: globals setAnchor setTooltipText
+-- luacheck: globals setAnchor setTooltipText WildMagicSurgeManager WildMagicSurgeManager.doWildMagicCheck
 local bCallbacksRegistered = false
 function onInit()
     if super and super.onInit then
@@ -173,6 +173,9 @@ function onButtonPress()
             Comm.deliverChatMessage(rMessage);
         end
         aCastInfo = ArcaneWard.resetCastInfo(node, aCastInfo);
+        if WildMagicSurgeManager then
+            WildMagicSurgeManager.doWildMagicCheck(window);
+        end
     end
     setCastToolTip(aCastInfo);
 end
