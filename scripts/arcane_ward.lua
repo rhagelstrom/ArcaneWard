@@ -5,7 +5,7 @@
 --
 -- luacheck: globals ArcaneWard onInit onClose hasCA hasLA hasCG hasSAI castAbjuration parseArcaneWard hasArcaneWard arcaneWard
 -- luacheck: globals removeAbsorbed getDBString customApplyDamage customMessageDamage customRest getCurrentCastInfo
--- luacheck: globals resetCastInfo getNextSpellSlot boolToNumber numberToBool
+-- luacheck: globals resetCastInfo getNextSpellSlot boolToNumber numberToBool customGetDamageAdjust
 -- luacheck: globals getMagicTraits getPactMagicSlots expendSpellSlot getSpellSlots addNPCtoCT getEffectsByType
 -- Sage Advice
 -- https://dnd.wizards.com/articles/features/sageadvice_july2015
@@ -18,6 +18,7 @@
 --  (3) any temporary hit points, and
 --  (4) real hit points.
 local applyDamage = nil;
+local getDamageAdjust = nil;
 local messageDamage = nil;
 local rest = nil;
 local onNPCPostAdd = nil;
@@ -25,10 +26,12 @@ local extensions = {};
 
 function onInit()
     applyDamage = ActionDamage.applyDamage;
+    getDamageAdjust = ActionDamage.getDamageAdjust;
     messageDamage = ActionDamage.messageDamage;
     rest = CharManager.rest;
 
     ActionDamage.applyDamage = customApplyDamage;
+    ActionDamage.getDamageAdjust = customGetDamageAdjust;
     ActionDamage.messageDamage = customMessageDamage;
     CharManager.rest = customRest;
 
@@ -68,6 +71,7 @@ end
 
 function onClose()
     ActionDamage.applyDamage = applyDamage;
+    ActionDamage.getDamageAdjust = getDamageAdjust;
     ActionDamage.messageDamage = messageDamage;
     CharManager.rest = rest;
 end
@@ -253,8 +257,46 @@ function getDBString(node)
     end
 end
 
+function customGetDamageAdjust(rSource, rTarget, nDamage, rDamageOutput, ...)
+    local results = {getDamageAdjust(rSource, rTarget, nDamage, rDamageOutput, ...)};
+    if OptionsManager.isOption('GAVE', '2024') then
+        local aArcaneWardEffects = getEffectsByType(rTarget, 'ARCANEWARD');
+        local nTotal = nDamage + results[1]
+        local rRoll = {sDesc = '', nTotal = nTotal}
+        if next(aArcaneWardEffects) then
+            local ctEntries = CombatManager.getCombatantNodes();
+            for _, nodeCT in pairs(ctEntries) do
+                if not CombatManager.isCTHidden(nodeCT) then
+                    local rActor = ActorManager.resolveActor(nodeCT);
+                    if hasArcaneWard(rActor) then
+                        for _, rEffect in pairs(aArcaneWardEffects) do
+                            if rEffect.source_name == rActor.sCTNode then
+                                arcaneWard(rSource, rActor, rRoll);
+                                if nTotal ~= rRoll.nTotal then
+                                    results[1] = rRoll.nTotal - nDamage
+                                    table.insert(rDamageOutput.tNotifications, rRoll.sDesc);
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        if hasArcaneWard(rTarget) then
+            arcaneWard(rSource, rTarget, rRoll);
+            if nTotal ~= rRoll.nTotal then
+                results[1] = rRoll.nTotal - nDamage
+                table.insert(rDamageOutput.tNotifications, rRoll.sDesc);
+            end
+        end
+    end
+
+    return unpack(results);
+end
+
 function customApplyDamage(rSource, rTarget, rRoll)
-    if not rSource or not rTarget or not rRoll or rRoll.sType ~= 'damage' then
+    -- 2024 need to be here ActionDamage.getDamageAdjust(rSource, rTarget, rDamageOutput.nVal, rDamageOutput);
+    if not rSource or not rTarget or not rRoll or rRoll.sType ~= 'damage' or OptionsManager.isOption('GAVE', '2024') then
         return applyDamage(rSource, rTarget, rRoll);
     end
     -- Get the effects on source, determine. is arcane ward. determine source
