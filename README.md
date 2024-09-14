@@ -3,8 +3,8 @@
 
 [![Build FG Extension](https://github.com/rhagelstrom/ArcaneWard/actions/workflows/create-release.yml/badge.svg)](https://github.com/rhagelstrom/ArcaneWard/actions/workflows/create-release.yml) [![Luacheckrc](https://github.com/rhagelstrom/ArcaneWard/actions/workflows/luacheck.yml/badge.svg)](https://github.com/rhagelstrom/ArcaneWard/actions/workflows/luacheck.yml) [![Markdownlint](https://github.com/rhagelstrom/ArcaneWard/actions/workflows/markdownlint.yml/badge.svg)](https://github.com/rhagelstrom/ArcaneWard/actions/workflows/markdownlint.yml)
 
-**Current Version:** 1.17
-**Updated:** 12/09/23
+**Current Version:** ~dev-version~ \
+**Updated:** ~date~
 
 Arcane Ward is Fantasy Grounds extension for 5E that automates the School of Abjuration trait Arcane Ward. Also mostly automates legacy NPCs with the trait Arcane Ward. This extension also helps automate and track spell/pact slot usage. This extension is useful even if no one in the party is an Abjuration Wizard.
 

@@ -10,8 +10,15 @@ permissions: write-all
 
 env:
   EXTENSION:  '.ext'
-  FILE_TYPE_EXLUSIONS: '*.git* *.css* *.resources* *.vscode* *.yml /*node_modules/* .editorconfig body.md *.psd *.xcf *.mod forge-thumbnail.png *.pdf LICENSE *.DS_Store*'
-  MODULE_PATH: '.resources/'
+  PDF: '.pdf'
+  MARKDOWN: '.md'
+  README: 'README'
+  FILE_TYPE_EXLUSIONS: '*.git* *.css* *.resources* *.vscode* *.yml /*node_modules/* ./graphics/documentation/* .editorconfig body.md *.psd *.xcf *.mod forge-thumbnail.png *.pdf LICENSE *.DS_Store*'
+  RESOURCES: '.resources/'
+  GITHUB: '.github/'
+  THEME: '.css/torillic.css'
+  GRAPHICS: 'graphics/'
+  BADGES: '\[!\[.+\]\(.+\)\]\(.+\)\s?\n?'
 
 jobs:
   build:
@@ -20,13 +27,44 @@ jobs:
     - name: Checkout Repo Assets
       uses: actions/checkout@v4
 
+    - name: Strip Badges
+      uses: jacobtomlinson/gha-find-replace@v3
+      with:
+        find: ${{ env.BADGES }}
+        exclude: ${{ env.FILE_TYPE_EXLUSIONS }}
+        replace: ' '
+
+    - name: Get current Date
+      run: echo "DATE=$(date +'%m/%d/%y')" >> $GITHUB_ENV
+
+    - name: Replace Date
+      uses: jacobtomlinson/gha-find-replace@v3
+      with:
+        find: '~date~'
+        exclude: ${{ env.FILE_TYPE_EXLUSIONS }}
+        replace: ${{ env.DATE }}
+
+    - name: Replace Version
+      uses: jacobtomlinson/gha-find-replace@v3
+      with:
+        find: '~dev_version~'
+        exclude: ${{ env.FILE_TYPE_EXLUSIONS }}
+        replace: ${{github.ref_name}}
+
+    - name: Replace Backslashes
+      uses: jacobtomlinson/gha-find-replace@v3
+      with:
+        find: '\\'
+        include: 'README.md'
+        replace: '  '
+
     - name: Zip Assets Into ${{ github.event.repository.name }}${{ env.EXTENSION }} File
       uses: thedoctor0/zip-release@0.7.6
       with:
         filename: ${{ github.event.repository.name }}${{ env.EXTENSION }}
         exclusions: ${{ env.FILE_TYPE_EXLUSIONS }}
 
-    - name: Add ${{ github.event.repository.name }}${{ env.EXTENSION }}, ${{ vars.MODULE }}' to Release
+    - name: Add ${{ github.event.repository.name }}${{ env.EXTENSION }} to Release
       uses: ncipollo/release-action@v1
       with:
         artifacts: ${{ github.event.repository.name }}${{ env.EXTENSION }}
@@ -50,11 +88,28 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: 'pip'
 
-      - name: Install general dependencies
+      - name: Install uv and create venv
         run: |
-          pip install -U pip
-          pip install .
+          pip install -U pip uv
+          uv venv
+
+      - name: Enable macOS/Linux venv
+        if: runner.os != 'Windows'
+        run: |
+          source .venv/bin/activate
+          echo $PATH >> $GITHUB_PATH
+
+      - name: Enable Windows venv
+        if: runner.os == 'Windows'
+        run: |
+          .venv\Scripts\activate
+          echo $env:path >> $ENV:GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e .
 
       - uses: actions/download-artifact@v4
         with:
@@ -65,7 +120,9 @@ jobs:
           FG_USER_NAME: ${{ vars.FG_USER_NAME }}
           FG_USER_PASS: ${{ secrets.FG_USER_PASS }}
           FG_ITEM_ID: ${{ vars.FG_ITEM_ID }}
-          FG_README_UPDATE: ${{ vars.FG_README_UPDATE }}
           FG_UL_FILE: ${{ github.event.repository.name }}${{ env.EXTENSION }}
+          FG_README_UPDATE: "TRUE"
+          FG_UPLOAD_BUILD: "TRUE"
+          FG_GRAPH_SALES: "FALSE"
         run: |
           python src/main.py
