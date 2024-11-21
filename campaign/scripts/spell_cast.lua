@@ -1,7 +1,7 @@
---  	Author: Ryan Hagelstrom
---	  	Copyright © 2022
---	  	This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
---	  	https://creativecommons.org/licenses/by-sa/4.0/
+--
+-- Please see the license.txt file included with this distribution for
+-- attribution and copyright information.
+--
 --
 -- luacheck: globals onInit onClose defaultButton optionChange registerCallbacks unRegisterCallbacks onUpdate setCastToolTip onButtonPress
 -- luacheck: globals setAnchor setTooltipText WildMagicSurgeManager WildMagicSurgeManager.doWildMagicCheck

@@ -1,7 +1,6 @@
---  	Author: Ryan Hagelstrom
---	  	Copyright © 2022
---	  	This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
---	  	https://creativecommons.org/licenses/by-sa/4.0/
+--
+-- Please see the license.txt file included with this distribution for
+-- attribution and copyright information.
 --
 -- luacheck: globals ArcaneWard onInit onClose hasCA hasLA hasCG hasSAI castAbjuration parseArcaneWard hasArcaneWard arcaneWard
 -- luacheck: globals removeAbsorbed getDBString customApplyDamage customMessageDamage customRest getCurrentCastInfo
@@ -170,7 +169,7 @@ function parseArcaneWard(rActor)
                     if StringManager.isWord(aWords[i], 'equal') and StringManager.isWord(aWords[i + 1], 'to') and
                         StringManager.isWord(aWords[i + 2], 'twice') and StringManager.isWord(aWords[i + 3], 'your') then
                         aAWParsed['class'] = aWords[i + 4];
-                    elseif StringManager.isWord(aWords[i], '+') and StringManager.isWord(aWords[i + 1], 'your') and
+                    elseif (StringManager.isWord(aWords[i], '+') or StringManager.isWord(aWords[i], 'plus')) and StringManager.isWord(aWords[i + 1], 'your') and
                         StringManager.isWord(aWords[i + 3], 'modifier') then
                         aAWParsed['modifier'] = aWords[i + 2];
                     end

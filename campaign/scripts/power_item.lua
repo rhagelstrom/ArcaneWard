@@ -1,7 +1,7 @@
---  	Author: Ryan Hagelstrom
---	  	Copyright © 2022
---	  	This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
---	  	https://creativecommons.org/licenses/by-sa/4.0/
+--
+-- Please see the license.txt file included with this distribution for
+-- attribution and copyright information.
+--
 --
 -- luacheck: globals onInit onClose optionChange registerCallbacks unRegisterCallbacks onUpdate onDisplayChanged
 -- luacheck: globals setCastButton
@@ -116,7 +116,7 @@ function onDisplayChanged()
 
     local node = getDatabaseNode();
     local sGroup = DB.getValue(node, 'group', '');
-    local sDisplayMode = DB.getValue(node, '...powerdisplaymode', '');
+    local sDisplayMode = DB.getValue(node, '...powermode', '');
     local bProcess = false;
     local aCastInfo;
 
@@ -130,7 +130,7 @@ function onDisplayChanged()
     end
     if sDisplayMode == 'summary' then
         header.subwindow.button_abjuration.setVisible(false);
-    elseif sDisplayMode == 'action' and bProcess and (aCastInfo.bSpellcasting or aCastInfo.bPactMagic) and aCastInfo.nLevel > 0 then
+    elseif (sDisplayMode == 'action' or sDisplayMode == 'combat') and bProcess and (aCastInfo.bSpellcasting or aCastInfo.bPactMagic) and aCastInfo.nLevel > 0 then
         setCastButton(aCastInfo);
     else
         header.subwindow.button_abjuration.setVisible(false);
