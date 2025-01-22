@@ -169,8 +169,8 @@ function parseArcaneWard(rActor)
                     if StringManager.isWord(aWords[i], 'equal') and StringManager.isWord(aWords[i + 1], 'to') and
                         StringManager.isWord(aWords[i + 2], 'twice') and StringManager.isWord(aWords[i + 3], 'your') then
                         aAWParsed['class'] = aWords[i + 4];
-                    elseif (StringManager.isWord(aWords[i], '+') or StringManager.isWord(aWords[i], 'plus')) and StringManager.isWord(aWords[i + 1], 'your') and
-                        StringManager.isWord(aWords[i + 3], 'modifier') then
+                    elseif (StringManager.isWord(aWords[i], '+') or StringManager.isWord(aWords[i], 'plus')) and
+                        StringManager.isWord(aWords[i + 1], 'your') and StringManager.isWord(aWords[i + 3], 'modifier') then
                         aAWParsed['modifier'] = aWords[i + 2];
                     end
                     i = i + 1;

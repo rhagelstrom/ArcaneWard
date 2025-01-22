@@ -132,7 +132,8 @@ function onDisplayChanged()
     end
     if sDisplayMode == 'summary' then
         header.subwindow.button_abjuration.setVisible(false);
-    elseif (sDisplayMode == 'action' or sDisplayMode == 'combat') and bProcess and (aCastInfo.bSpellcasting or aCastInfo.bPactMagic) and aCastInfo.nLevel > 0 then
+    elseif (sDisplayMode == 'action' or sDisplayMode == 'combat') and bProcess and
+        (aCastInfo.bSpellcasting or aCastInfo.bPactMagic) and aCastInfo.nLevel > 0 then
         setCastButton(aCastInfo);
     else
         header.subwindow.button_abjuration.setVisible(false);
