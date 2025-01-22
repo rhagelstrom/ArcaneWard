@@ -397,7 +397,7 @@ function getCurrentCastInfo(node, bNextSlot, aCastInfo)
             aRet.bRitual = true;
         end
 
-        if sDescription:match('At Higher Levels') then
+        if sDescription:match('At Higher Levels') or sDescription:match('Higher%-Level Spell Slot') then
             aRet.bUpcast = true;
         end
     end
@@ -466,7 +466,6 @@ function getCurrentCastInfo(node, bNextSlot, aCastInfo)
             DB.setValue(node, 'arcanewardpactritual', 'number', boolToNumber(aRet.bCastasPactRitual));
         end
     end
-
     return aRet
 end
 -- luacheck: pop
