@@ -74,6 +74,7 @@ function registerCallbacks(aCastInfo)
     end
 
     DB.addHandler(node.getPath() .. '.arcanewardcastaspact', 'onUpdate', onDisplayChanged);
+    DB.addHandler(sNodePath .. '.powermode', 'onUpdate', onUpdate);
     onUpdate();
 end
 
@@ -99,6 +100,8 @@ function unRegisterCallbacks(aCastInfo)
         end
     end
     DB.removeHandler(node.getPath() .. '.arcanewardcastaspact', 'onUpdate', onDisplayChanged);
+    DB.removeHandler(sNodePath .. '.powermode', 'onUpdate', onUpdate);
+
     onUpdate()
 end
 
@@ -113,7 +116,6 @@ function onDisplayChanged()
     if super and super.onDisplayChanged then
         super.onDisplayChanged();
     end
-
     local node = getDatabaseNode();
     local sGroup = DB.getValue(node, 'group', '');
     local sDisplayMode = DB.getValue(node, '...powermode', '');
