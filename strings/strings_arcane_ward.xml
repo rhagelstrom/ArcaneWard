@@ -11,4 +11,5 @@ https://creativecommons.org/licenses/by-sa/4.0/
 	<string name="option_spell_cast_game">Sheet: Show Cast Powers All (GM)</string>
 	<string name="option_spell_cast">Sheet: Show Cast Powers</string>
 	<string name="option_pact_aw">Default: Use Pact Magic Slots First</string>
+	<string name="option_upcast_aw">Sheet: Upcast Any Spell</string>
 </root>

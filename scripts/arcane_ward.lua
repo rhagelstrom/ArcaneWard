@@ -66,6 +66,14 @@ function onInit()
         default = 'off'
     });
 
+    OptionsManager.registerOption2('ARCANE_WARD_UPCAST', false, 'option_arcane_ward', 'option_upcast_aw', 'option_entry_cycler', {
+        labels = 'option_val_on',
+        values = 'on',
+        baselabel = 'option_val_off',
+        baseval = 'off',
+        default = 'off'
+    });
+
 end
 
 function onClose()
@@ -396,8 +404,7 @@ function getCurrentCastInfo(node, bNextSlot, aCastInfo)
         if aTraits.bRitualCaster and DB.getValue(node, 'ritual', 0) == 1 then
             aRet.bRitual = true;
         end
-
-        if sDescription:match('At Higher Levels') or sDescription:match('Higher%-Level Spell Slot') then
+        if  OptionsManager.isOption('ARCANE_WARD_UPCAST', 'on') or sDescription:match('At Higher Levels') or sDescription:match('Higher%-Level Spell Slot') then
             aRet.bUpcast = true;
         end
     end

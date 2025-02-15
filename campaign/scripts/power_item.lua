@@ -12,6 +12,7 @@ function onInit()
     end
     OptionsManager.registerCallback('ARCANE_WARD_SPELL_CAST_GAME', optionChange);
     OptionsManager.registerCallback('ARCANE_WARD_SPELL_CAST', optionChange);
+    OptionsManager.registerCallback('ARCANE_WARD_SPELL_UPCAST', onUpdate);
     local node = getDatabaseNode();
     DB.addHandler(node.getPath() .. '.group', 'onUpdate', onDisplayChanged);
     windowlist.onChildWindowAdded(self);
@@ -25,6 +26,8 @@ function onClose()
     DB.removeHandler(node.getPath() .. '.group', 'onUpdate', onDisplayChanged);
     OptionsManager.unregisterCallback('ARCANE_WARD_SPELL_CAST_GAME', optionChange);
     OptionsManager.unregisterCallback('ARCANE_WARD_SPELL_CAST', optionChange);
+    OptionsManager.unregisterCallback('ARCANE_WARD_SPELL_UPCAST', onUpdate);
+
     optionChange(true);
 
     if super and super.onClose then

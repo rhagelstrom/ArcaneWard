@@ -16,6 +16,7 @@ function onInit()
     OptionsManager.registerCallback('ARCANE_WARD_SPELL_CAST_GAME', optionChange);
     OptionsManager.registerCallback('ARCANE_WARD_SPELL_CAST', optionChange);
     OptionsManager.registerCallback('ARCANE_WARD_PACT', defaultButton);
+    OptionsManager.registerCallback('ARCANE_WARD_SPELL_UPCAST', optionChange);
     optionChange();
 end
 
