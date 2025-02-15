@@ -47,4 +47,8 @@
 			</genericcontrol>
 		</sheetdata>
 	</windowclass>
+
+	<windowclass name="power_page" merge="join">
+		<script file="campaign/scripts/power_page.lua" />
+	</windowclass>
 </root>
