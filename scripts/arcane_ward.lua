@@ -496,13 +496,6 @@ end
 function getNextSpellSlot(aCastInfo, aSpellSlots)
     if (aCastInfo.bUpcast or aCastInfo.bRitual) and (next(aSpellSlots) ~= nil) then
         local nNextCastLevel = -1;
-        if aCastInfo.bCastasRitual then
-            aCastInfo.bCastasRitual = false;
-            aCastInfo.nCastLevel = aCastInfo.nLevel;
-            if aSpellSlots[aCastInfo.nCastLevel] ~= nil then
-                return;
-            end
-        end
         if aCastInfo.bUpcast then
             for nSpellLevel, _ in pairs(aSpellSlots) do
                 if nSpellLevel > aCastInfo.nCastLevel then
@@ -512,10 +505,11 @@ function getNextSpellSlot(aCastInfo, aSpellSlots)
             end
             if nNextCastLevel == -1 then
                 aCastInfo.nCastLevel = aCastInfo.nLevel;
-                if aCastInfo.bRitual then
+                if aCastInfo.bRitual  and not aCastInfo.bCastasRitual then
                     aCastInfo.bCastasRitual = true;
                 elseif aSpellSlots[aCastInfo.nCastLevel] == nil then
                     getNextSpellSlot(aCastInfo, aSpellSlots);
+                    aCastInfo.bCastasRitual = false;
                 end
             else
                 aCastInfo.nCastLevel = nNextCastLevel;
